@@ -60,7 +60,11 @@ Product.prototype = {
                     var html = '<option value="">Select Product class</option>';
                     Product.prototype._listProdClass.forEach(function (_pclass) {
                         Product.prototype._listClass.push(_pclass.prodClass_name)
-                        html += '<option value="' + _pclass.prodClass_name + '">' + _pclass.prodClass_name + '</option>';
+                        if(_pclass.prodClass_name == 'Container') {
+                            html += '<option value="' + _pclass.prodClass_name + '" selected=true>' + _pclass.prodClass_name + '</option>';
+                        } else {
+                            html += '<option value="' + _pclass.prodClass_name + '">' + _pclass.prodClass_name + '</option>';
+                        }
                     });
                     $('select[name="prod_class"]').html(html);
                     resolve(true);
@@ -159,6 +163,18 @@ Product.prototype = {
 
         $('select[name="prod_class"]').change(function () {
             _vali.element('input[name="prod_price"]');
+
+            if ($('select[name ="prod_class"]').val() != "Container") {
+                $('select[name ="depot_id"]').prop("disabled", true);
+            } else {
+                $('select[name ="depot_id"]').prop("disabled", false);
+
+            }
+            if ($('select[name ="prod_class"]').val() != "Container") {
+                $('select[name ="container_type_id"]').prop("disabled", true);
+            } else {
+                $('select[name ="container_type_id"]').prop("disabled", false);
+            }
         });
 
     },
@@ -195,6 +211,8 @@ Product.prototype = {
             prod_desc_short: { maxlength: 400 },
             prod_type: { required: true },
             prod_class: { required: true },
+            depot_id: { required: $('select[name ="prod_class"]').val() != "Container" },
+            container_type_id: { required: $('select[name ="prod_class"]').val() != "Container" },
             // prod_cost: { min: function () { if ($('select[name="prod_class"]').val() == 'Discount') { return Number.MIN_SAFE_INTEGER; } else { return 0; } }},
             // prod_price: { min: function () { if ($('select[name="prod_class"]').val() == 'Discount') { return Number.MIN_SAFE_INTEGER; } else { return 0; } }},
             prod_weight: { min: 0, number: true },
@@ -230,20 +248,22 @@ Product.prototype = {
             $.ajax({
                 url: _link,
                 type: "POST",
+                dataType: 'json',
                 data: _f_data,
                 success: function (res_data2) {
-                    if (res_data2 && typeof res_data2 == 'string' && res_data2.startsWith('{')) {
-                        var tmp = JSON.parse(res_data2);
-                        if (tmp["SAVE"] == 'FAIL' || tmp["SAVE"] == false) {
-                            messageForm('Error! An error occurred. ' + tmp['ERROR'], false)
+                   // if (res_data2 && typeof res_data2 == 'string' && res_data2.startsWith('{')) {
+                       // var tmp = JSON.parse(res_data2);
+                        if (res_data2.ERROR !='') {
+                            messageForm('Error! An error occurred. ' + res_data2.ERROR, false)
                             return
                         } else {
+                            console.log(res_data2.ERROR)
                             readURLValue = null;
                             if (_link == link._productsAddNew) {
                                 messageForm('You have successfully added the product', true);
                                 if (document.location.href.indexOf('product-form') > 0) {
-                                    _href =  "./#ajax/product-form?id=" + tmp.ID;
-                                    $('#product_form [name=ID]').val(tmp.ID);
+                                    _href =  "./#ajax/product-form?id=" + res_data2.ID;
+                                    $('#product_form [name=ID]').val(res_data2.ID);
                                     responseSuccessForward('You have successfully added the product', true, null, _href, 'Go to edit product');
                                 }
                                 return
@@ -252,8 +272,7 @@ Product.prototype = {
                                 return
                             }
                         }
-                    } else {
-                    }
+                   // }
                 }
             });
         }
@@ -280,7 +299,7 @@ Product.prototype = {
 
                     $("select[name='prod_type']").val(Product.prototype._product['prod_type']);
                     $("select[name='prod_class']").val(Product.prototype._product['prod_class']);
-
+                    $('textarea[name="prod_desc_short"]').val(Product.prototype._product['prod_desc_short'])
 
 
                     $("input.tagsinput").tagsinput('add', Product.prototype._product['product_tags']);

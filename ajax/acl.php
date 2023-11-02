@@ -1,20 +1,16 @@
 <?php
 
 require_once 'inc/init.php';
-
 $roleForm = 'PermissionForm';
-
 // $_authenticate->checkFormPermission($roleForm);
-
 $role = 'edit';
-
 $hasGroup = isset($_GET['gr']);
-
 ?>
 <div>
     <h1><?= $hasGroup ? 'ACL Role' : 'General ACL (For None Group Users)' ?></h1>
 </div>
 <section id="widget-grid" class="">
+    <?php include_once 'modal/modal_success.php'; ?>
     <div class="row">
         <div class="smart-form padding-5" id="role_form" style="width:98%">
             <div class="smart-form" id="message_form"></div>
@@ -86,36 +82,29 @@ $hasGroup = isset($_GET['gr']);
                             </label>
                         </section>
                     <?php } ?>
-                    <section class="col col-3">
-                        <label class="input">&nbsp;</label>
-                        <button type="button" class="btn btn-sm btn-default btnSearchACL"><i class="fa fa-search"></i> Search</button>
-                        <?php if ($hasGroup) { ?>
-                            <button type="button" class="btn btn-sm btn-default loadYourACL">Your ACL</button>
-                        <?php } ?>
-                    </section>
                 </div>
             </fieldset>
             <fieldset id="acl_content">
-                <div class="tabbable">
-                    <ul class="nav nav-tabs bordered">
+                <input type="hidden" id="g-id">
+                <!--tab-->
+                <div class="panel-content m-t20">
+                    <ul class="nav nav-tabs" id="ul-acl" role="tablist">
+
                     </ul>
-                    <div class="tab-content padding-10">
+                    <div class="tab-content m-h500" id="body-acl">
+
                     </div>
-                </div>
+                    <div class="col-12 mt10pb30" id="anchor_btn"></div>
+                 </div>
+
+                <!--endtab-->
             </fieldset>
         </div>
     </div>
 </section>
 <script src="<?php echo ASSETS_URL; ?>/js/script/acl/acl.js"></script>
-<?php if($hasGroup){ ?>
-<script src="<?php echo ASSETS_URL; ?>/js/script/acl/acl-group.js"></script>
-<?php } ?>
-<script>
-    <?php if ($hasGroup) { ?>
-        action_form = Object.freeze("<?= HOST . '/_aclRuleUpdate.php' ?>");
-        action_search = 'loadGroupACL';
-    <?php } else { ?>
-        action_form = Object.freeze("<?= HOST . '/_aclChangeDefault.php' ?>");
-        action_search = 'loadDefaultACL';
-    <?php } ?>
+<script src="<?php echo ASSETS_URL; ?>/js/script/common_f.js"></script>
+
+<script type="text/javascript">
+    var is_addedit='<?php echo $_SESSION['int_acl']['acl_rules']['PermissionForm']['acl_form']['edit'];?>';
 </script>

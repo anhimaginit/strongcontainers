@@ -4,6 +4,7 @@
    {"display" : "Customer", "value" : "Customer"},
    {"display" : "Vendor", "value" : "Vendor"},
    {"display" : "Employee", "value" : "Employee"},
+    {"display" : "Driver", "value" : "Driver"},
    {"display" : "Policy Holder", "value" : "PolicyHolder"},
    {"display" : "System Admin", "value" : "SystemAdmin"}
 ]

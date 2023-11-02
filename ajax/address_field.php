@@ -21,7 +21,7 @@ use \SmartUI\Components\SmartForm;
             $addressField['address1'],
             SmartForm::FORM_FIELD_INPUT,
             array(
-                'label' => isset($addressField['address1_label']) ? $addressField['address1_label'] : 'Street Address 1',
+                'label' => isset($addressField['address1_label']) ? $addressField['address1_label'] : 'Street Address 1(*)',
                 'value' => isset($addressField['address1_val']) ? $addressField['address1_val'] : '',
                 'attr' => array(
                     hasPermission($addressField['form'], $addressField['address1'], $addressField['current_form']) ? '' : 'readonly'

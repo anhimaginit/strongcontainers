@@ -177,6 +177,7 @@ FreedomCalendar.prototype = {
             events: [],
             eventClick: function (info, elem) {
                 window.viewInfo = info;
+                console.log(info);
                 that.eventInfo(info, $(elem.target).parent());
             }
 
@@ -222,13 +223,16 @@ FreedomCalendar.prototype = {
         if (!info || !elem) {
             return;
         }
-        let originalData = this.getEventOriginal(info.id);
+        //let originalData = this.getEventOriginal(info.id);
+        let originalData =info;
+        //console.log(originalData);
         let _html = `
         <table class="table" style="width:100%" id="calendar_info_table" data-event="${originalData.id}">
             <tbody>
                 <tr>
                     <td colspan="2">
-                        Create by ${info.creator.self ? 'Your self' : info.creator.email} at ${getDateTime(new Date(info.created))}
+                      Create by ${info.creator.self ? 'Your self' : info.creator.email} at ${getDateTime(new Date(info.created))}
+
                     </td>
                 </tr>
                 <tr>

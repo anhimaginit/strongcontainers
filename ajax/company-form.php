@@ -124,7 +124,7 @@ if (hasIdParam() && strrpos($_SERVER['REQUEST_URI'], 'company-form') > 0) {
                   'disabled' => !hasPermission($company_form, 'fax', $company_current_form),
                 ), 6, true, hasPermission($company_form, 'fax', 'show')) .
                   SmartForm::print_field('email', SmartForm::FORM_FIELD_INPUT, array(
-                    'label' => 'Email',
+                    'label' => 'Email(*)',
                     'type' => 'email',
                     'value' => (isset($companyEdit->email) ? $companyEdit->email : ''),
                     'disabled' => !hasPermission($company_form, 'email', $company_current_form),

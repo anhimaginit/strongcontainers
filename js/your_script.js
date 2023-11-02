@@ -27,12 +27,14 @@ Storage.prototype.getItemValue = function (key) {
 
 if (document.location.href.includes('localhost/')) {
     // host = 'https://api.salescontrolcenter.com/';
-    host = 'https://api.warrantyproject.com/';
+    host = 'http://localhost/CRMAPI/';
     host2 = 'http://localhost/crm/';
+    host3 = 'http://localhost/crm/#ajax/';
     // debugState = true;
 } else if (document.location.href.includes('salescontrolcenter')) {
     host = 'https://api.salescontrolcenter.com/';
     host2 = 'https://salescontrolcenter.com/';
+    host3 = 'https://salescontrolcenter.com/#ajax/';
 }else if (document.location.href.includes('blair.trainingaccountadmin.com')) {
     host = 'https://api.trainingaccountadmin.com/';
     host2 = 'https://blair.trainingaccountadmin.com/';
@@ -72,7 +74,6 @@ var link = {
     _contactID_AID: host + '_contactID_AID.php',
     _contactDeleteMailPhone_ID: host + '_contactDeleteMailPhone_ID.php',
 
-
     /**------------  USER  ------------------------------ */
     _userCheckOldPass: host + '_userCheckOldPass.php',
     _userResetPass: host + '_userResetPass.php',
@@ -81,7 +82,6 @@ var link = {
     _salesmanList_corporate: host + '_salesmanList_corporate.php',
     _userCheckUserPass: host + '_userCheckUserPass.php',
     _userExisting: host + '_userExisting.php',
-
     /**------------PRODUCT-------------------------  */
 
     _getProductClass: host + '_getProductClass.php',
@@ -97,7 +97,6 @@ var link = {
     _productClssWarranty: host + '_productClssWarranty.php',
     _productClssALaCarte: host + '_productClssALaCarte.php',
     _productsAlacarteForOrder: host + '_productsAlacarteForOrder.php',
-
     /**------------WARRANTY-------------------------- */
 
     _warrantyAddNew: host + '_warrantyAddNew.php',
@@ -110,8 +109,6 @@ var link = {
     _salesmanDetailByID: host + '_salesmanDetailByID.php',
     _salesmanList: host + '_salesmanList.php',
     _salesmanEmployeeList: host + '_salesmanAndEmployeeList.php',
-
-
 
     /**-----------ORDER---------------------------- */
     _orderGetById: host + '_orderGetById.php',
@@ -133,7 +130,6 @@ var link = {
     _employeeList: host + '_employeeList.php',
     _affiliateSearchByName: host + '_affiliateSearchByName.php',
 
-
     /**-----------INVOICE---------------------------------- */
     _invoiceGetByID: host + '_invoiceGetByID.php',
     _invoiceAddNew: host + '_invoiceAddNew.php',
@@ -141,9 +137,7 @@ var link = {
     _invoiceNumExisting: host + '_invoiceNumExisting.php',
     _invoiceFilterList: host + '_invoiceFilterList.php',
 
-
     /** ---------CLAIM----------------------------- */
-
     _claimLimitSave: host + '_claimLimitSave.php',
     _claimLimitProductList: host + '_claimLimitProductList.php',
     _claimLimitProductID: host + '_claimLimitProductID.php',
@@ -160,7 +154,6 @@ var link = {
     _wanrantysbyBillToID: host + '_wanrantysbyBillToID.php',
     _wanranties_BillToID: host + '_wanranties_BillToID.php',
     _claimFilterList: host + '_claimFilterList.php',
-
 
     /**--------CLAIM TRANSACTION ----------------------------------- */
     _claimTransactionAddNew: host + '_claimTransactionAddNew.php',
@@ -191,7 +184,6 @@ var link = {
     _mailAcctantApprove: host + '_mailAcctantApprove.php',
     _mailOwnerApprove: host + '_mailOwnerApprove.php',
 
-
     /**--------DASHBOARD-------------------------------------- */
     _dashBoardWanrantyList: host + '_dashBoardWanrantyList.php',
     _dashboardOrderPaidOpen: host + '_dashboardOrderPaidOpen.php',
@@ -204,15 +196,12 @@ var link = {
     _dashboardListGrps: host + '_dashboardListGrps.php',
     _dashboardListGrps_Individual: host + '_dashboardListGrps_Individual.php',
     _contactName: host + '_contactName.php',
-
     /**---------RULE (ACL)------------------------------------- */
 
     _aclRuleUpdate: host + '_aclRuleUpdate.php',
     _aclRules_Unit_Level: host + '_aclRules_Unit_Level.php',
     _aclRulesGroupID: host + '_aclRulesGroupID.php',
     _aclChangeDefault: host + '_aclChangeDefault.php',
-
-
 
     /**---------COMPANY------------------------- */
     _companyList: host + '_companyList.php',
@@ -238,8 +227,8 @@ var link = {
     _groupsUsersByUnit: host + '_groupsUsersByUnit.php',
 
     _roles: host + '_roles.php',
-    /**----------  REPORT  ----------------------------   */
 
+    /**----------  REPORT  ----------------------------   */
     _reportClaim: host + '_reportClaim.php',
     _reportDownloadCsvClaim: host + '_reportDownloadCsvClaim.php',
 
@@ -280,7 +269,6 @@ var link = {
     _subcriptions: host + '_subcriptions.php',
     _subGetNunOfPayment: host + '_subGetNunOfPayment.php',
 
-
     /** MAIL */
     _mailToCutomer: host + '_mailToCutomer.php',
 
@@ -299,8 +287,6 @@ var link = {
     _register: host + '_register.php',
     _emailRegister: host + 'emailRegister.php',
 
-
-
     /**----------  DISCOUNT  --------------------------------- */
     _discountAddNew: host + '_discountAddNew.php',
     _discountUpdate: host + '_discountUpdate.php',
@@ -311,8 +297,6 @@ var link = {
     _discountList: host + '_discountList.php',
     _discountGetByDiscountCodeByName: host + '_discountGetByDiscountCodeByName.php',
 
-
-
     /**-----------  PURCHASE HOME WARRANTY  -------------------------------------- */
     _homeOrderAddNew: host + '_homeOrderAddNew.php',
     _homeWarrantyAddNew: host + '_homeWarrantyAddNew.php',
@@ -320,7 +304,6 @@ var link = {
     _homeOrderEdit: host + '_homeOrderEdit.php',
     _orderAddNewNotLogin: host + '_orderAddNewNotLogin.php',
     _warrantyAddNewNotLogin: host + '_warrantyAddNewNotLogin.php',
-
 
     /*--------------  CONTROL SELECT2  -------------------------------- */
     _contactGetList: host + '_contactGetList.php',
@@ -343,6 +326,7 @@ var link = {
     _taskTemplateUpdate: host + '_taskTemplateUpdate.php',
     _taskNewTotal: host + '_taskNew_Total.php',
     _actionset_list: host + '_actionset_list.php',
+    _taskDetail_id: host +'_taskDetail_id.php',
 
     /****-------------  EMAIL  --------------------------------------- */
     _emailComposer: host + '_emailComposer.php',
@@ -368,7 +352,6 @@ var link = {
     _sms_get_area_by_phone: host + '_smsGetAreabyphone.php',
     _sms_insert_phone_area: host + '_smsInsertPhoneArea.php',
     _sms_get_text: host + '_smsGetSends_phone.php',
-
 
     _task_getNew: host + '_taskGetNew.php',
 
@@ -403,12 +386,58 @@ var link = {
     _btnPrvOrNxt: host + '_btnPrvOrNxt.php',
     /**----------  SEARCH ALL  -------------------------- */
     _contactAndCompFilterList: host + '_contactAndCompFilterList.php',
+
+    /************   distance matrix   *********************** */
+    _depots_nearest: host + '_depots_nearest.php',
+    _depots:host + '_depots.php',
+    _container_type:host +'_container_type.php',
+    _quote_temp_new:host +'_quote_temp_new.php',
+    _quote_code: host +'_quote_code.php',
+    _quote_add_customer:host +'_quote_add_customer.php',
+    _driverList:host +'_driverList.php',
+    _orderSearch:host +'_orderSearch.php',
+    _driverSearch:host +'_driverSearch.php',
+    _calendars:host +'_calendars.php',
+    _calendar_date:host +'_calendar_date.php',
+    _depot_new_update:host +'_depot_new_update.php',
+    _container_type_new_update :host +'_container_type_new_update.php',
+    _rate_container_new_update : host +'_rate_container_new_update.php',
+    _rate_shipping_new_update : host +'_rate_shipping_new_update.php',
+    _depots_search : host +'_depots_search.php',
+    _container_type_search: host +'_container_type_search.php',
+    _rate_container_search: host +'_rate_container_search.php',
+    _rate_shipping_search: host +'_rate_shipping_search.php',
+    _company_search :  host +'_company_search.php',
+    _taskSearch :  host +'_taskSearch.php',
+    _calendar_create :  host +'_calendar_create.php',
+    _depot_id :  host +'_depot_id.php',
+    _container_type_id :  host +'_container_type_id.php',
+    _rate_shipping_id :  host +'_rate_shipping_id.php',
+    _rate_container_id :  host +'_rate_container_id.php',
+    _profile_add_update :  host +'_profile_add_update.php',
+    _driver_total_rate :  host +'_driver_total_rate.php',
+    _profile :  host +'_profile.php',
+    _group_role_unit: host +  '_group_role_unit.php',
+    _group_by_id: host +'_group_by_id.php',
+    _acl_update: host +'_acl_update.php',
+    _contact_search: host +'_contact_search.php',
+    _order_report: host +'_order_report.php',
+    _task_update_report: host +'_task_update_report.php',
+    _mail_to_driver: host +'_mail_to_driver.php',
+    _competitor_rate: host +'_competitor_rate.php',
+    _discount_code_check: host +'_discount_code_check.php',
+    _task_driver_info_id: host +'_task_driver_info_id.php',
+    _pay_driver: host +'_pay_driver.php',
+    _payment_task: host +'_payment_task.php',
+    /*******************************************/
+    update_session :  host2 +'php/update_session.php',
 };
 
 var _linkSelect = {
     // order form
     bill_to: { url: link._contacListSearch, id: 'ID' },
     salesperson: { url: link._salesmanListSearch, id: 'SID' },
+    driver: { url: link._driverList, id: 'ID' },
     //invoice form
     customer: { url: link._contacListSearch, id: 'ID' },
     //warranty form
@@ -624,6 +653,12 @@ function getUrlParameter(sParam) {
     }
 };
 
+function getUrlParaOnlyID(sParam) {
+    var sPageURL = document.location.href.substring(document.location.href.indexOf('?') + 1)
+    var id = sPageURL.substring(sPageURL.indexOf('=') +1)
+    return id
+};
+
 function getDateTime(_date) {
     if (_date == undefined) _date = new Date();
     if (isNaN(_date.getFullYear())) {
@@ -809,3 +844,286 @@ function tooltipInputError(text, elem) {
         $(elem).tooltip('destroy');
     })
 }
+/**********************/
+function validate_email(email){
+    var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+    return pattern.test(email);
+}
+/****************************/
+var billto_select2_el =function(element,link,callback){
+    $(element).select2({
+        placeholder: 'Search Bill to',
+        minimumInputLength: 1,
+        language: {
+            inputTooShort: function () {
+                return 'Search Bill to';
+            }
+        },
+        ajax: {
+            "async": true,
+            "crossDomain": true,
+            url: link,
+            type: 'post',
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                var _data = {token:_token,text_search:params.term}
+                return _data;
+            },
+            processResults: function (data, params) {
+                data1 = $.map(data, function (obj) {
+                    return {
+                        text:obj.text ,
+                        id:obj.id,
+                        address:obj.address,
+                        email:obj.email,
+                        phone:obj.phone
+                    };
+                });
+                //console.log(data1);
+                return { results: data1 }
+
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) { return markup; },
+        templateResult: function (data) {
+
+            var phone =data.email ? data.email:""
+            var email =data.email ? data.email:""
+            email = phone ? email:email +", " +phone
+
+            return '<div class="padding-5">' +
+                '<div class="select2-result-repository__title">' + data.text +'</div>' +
+                '<div class="select2-result-repository__title">' + data.address +'</div>' +
+                '<div class="select2-result-repository__title">' + phone +
+                    '<div class="pull-right">' + email +'</div>' +
+                '</div>' +
+            '</div>';
+
+        },
+        templateSelection: function (data) {
+            $(element).find('option:selected').attr('address', data.address);
+            $(element).find('option:selected').attr('phone', data.phone);
+            $(element).find('option:selected').attr('email', data.email);
+            if (!data.text) return data.id;
+            else return data.text;
+        }
+    });
+    if(callback) callback();
+}
+/****************************/
+var order_select2_el =function(element,link,callback){
+    $(element).select2({
+        placeholder: 'Search Order',
+        minimumInputLength: 1,
+        language: {
+            inputTooShort: function () {
+                return 'Search Order';
+            }
+        },
+        ajax: {
+            "async": true,
+            "crossDomain": true,
+            url: link,
+            type: 'post',
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                var _data = {token:_token,text_search:params.term}
+                return _data;
+            },
+            processResults: function (data, params) {
+                data1 = $.map(data, function (obj) {
+                    var products ='';
+                    if(obj.products_ordered !=null){
+                        obj.products_ordered.forEach(function(item){
+                            products =(products =="")?item.sku: products+", "+item.sku;
+                        });
+                    }
+
+                    return {
+                        text:obj.text ,
+                        id:obj.id,
+                        products:products,
+                        email_phone:obj.email_phone,
+                        shipping_phone:obj.shipping_phone,
+                        shipping_customer_name:obj.shipping_customer_name,
+                        shipping_address:obj.shipping_address,
+                        createTime:obj.createTime,
+                        sku_list:obj.sku_list
+                    };
+                });
+                //console.log(data1);
+                return { results: data1 }
+
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) { return markup; },
+        templateResult: function (data) {
+
+            var phone =data.shipping_phone ? data.shipping_phone:""
+            var email =data.email_phone ? data.email_phone:""
+            email = phone ? email:email +", " +phone
+
+            return '<div class="padding-5">' +
+                '<div class="select2-result-repository__title">' + data.text +
+                    '<div class="pull-right">' + data.shipping_customer_name +'</div>' +
+                '</div>' +
+                '<div class="select2-result-repository__title">' + data.products +
+                    '<div class="pull-right">' + data.shipping_address +'</div>' +
+                '</div>' +
+                '<div class="select2-result-repository__title">' + data.createTime +
+                    '<div class="pull-right">' + email +'</div>' +
+                '</div>' +
+            '</div>';
+
+        },
+        templateSelection: function (data) {
+            $(element).find('option:selected').attr('sku_list', data.sku_list);
+            if (!data.text) return data.id;
+            else return data.text;
+        }
+    }).change(function(){
+           if(element =='#assign_order'){
+               var $temp = $(this).find(":selected").attr('sku_list').split(",")
+               var option ='<option value="">Select SKU</option>';
+               $temp.forEach(function(item){
+                   option +='<option value="'+item+'">'+item+'</option>'
+               })
+               $('#assign_driver_id').prop("disabled",false);
+               $('#product_sku').prop("disabled",false);
+               $('#product_sku').html(option);
+           }
+        });
+    if(callback) callback();
+}
+/****************************/
+var user_select2_el =function(element,link,callback){
+    var level =localStorage.getItemValue('level');
+    var login_id = localStorage.getItemValue('userID')
+    $(element).select2({
+        placeholder: 'Search Driver',
+        minimumInputLength: 1,
+        language: {
+            inputTooShort: function () {
+                return 'Search Driver';
+            }
+        },
+        ajax: {
+            "async": true,
+            "crossDomain": true,
+            url: link,
+            type: 'post',
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                var _data = {token:_token,text_search:params.term,level:level,login_id:login_id}
+                return _data;
+            },
+            processResults: function (data, params) {
+                data1 = $.map(data, function (obj) {
+                    if(obj.driver_rate ==null || obj.undefined) obj.driver_rate =0
+                    obj.driver_rate = numeral(obj.driver_rate).format('$ 0,0.00')
+                    obj.driver_min_rate = numeral(obj.driver_min_rate).format('$ 0,0.00')
+                    return {
+                        text:obj.text ,
+                        id:obj.id,
+                        primary_street_address1:obj.primary_street_address1,
+                        primary_email:obj.primary_email,
+                        primary_phone:obj.primary_phone,
+                        driver_rate: obj.driver_rate,
+                        driver_min_rate:obj.driver_min_rate
+                    };
+                });
+                //console.log(data1);
+                return { results: data1 }
+
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) { return markup; },
+        templateResult: function (data) {
+            return '<div class="padding-5">' +
+                '<div class="select2-result-repository__title">' + data.text +
+                    '<div class="pull-right">' + data.primary_street_address1 +'</div>' +
+                '</div>' +
+                '<div class="select2-result-repository__title">' + data.primary_email +
+                    '<div class="pull-right">' + data.primary_phone +'</div>' +
+                '</div>' +
+                '<div class="select2-result-repository__title">' + data.driver_rate + '/mile'+
+                '<div class="pull-right">Min: ' + data.driver_min_rate +'</div>' +
+                '</div>' +
+            '</div>';
+
+        },
+        templateSelection: function (data) {
+            // $(element).find('option').attr('code', item.code);
+            // $(element).find('option').attr('name1', item.name1);
+            if (!data.text) return data.id;
+            else return data.text;
+        }
+    }).change(function(){
+            if(element == '#assign_driver_id'){
+                var order =  $('#task_form #assign_order').val();
+                var product = $('#task_form #product_sku').val();
+                var driver =$(this).find(":selected").val();
+                if(order !='' && product !=''){
+                    var data =  {
+                        order_id:order,
+                        prod_sku:product,
+                        contact_id:driver
+                    }
+                    calculate_driver_rate(data,element)
+                }
+            }
+        });
+
+    if(callback) callback();
+}
+/***********************************/
+var calculate_driver_rate = function(data,el){
+    var _link =link._driver_total_rate;
+    data.token =_token
+    $.ajax({
+        "async": true,
+        "crossDomain": true,
+        "url": _link,
+        "method": "POST",
+        dataType: 'json',
+        data:data,
+        error : function (status,xhr,error) {
+        },
+        success: function (data){
+            if(parseFloat(data) >0){
+               var total = numeral(data).format('$ 0,0.00')
+               $(el).closest('.driver-rate').find('.driver-rate-total').text('(Total: '+total+')');
+               $(el).closest('.driver-rate').find('.driver-rate-total').css({"display":""})
+            }else{
+                $(el).closest('.driver-rate').find('.driver-rate-total').text("");
+                $(el).closest('.driver-rate').find('.driver-rate-total').css({"display":"none"})
+            }
+        }
+    })
+}
+/***********************************/
+var updatesection = function(data){
+    var _link =link.update_session;
+    $.ajax({
+        "async": true,
+        "crossDomain": true,
+        "url": _link,
+        "method": "POST",
+        dataType: 'json',
+        data:{data:data},
+        error : function (status,xhr,error) {
+        },
+        success: function (data){
+        }
+    })
+}
+
+
+
+

@@ -2,6 +2,7 @@
 if (!session_id()) {
     session_start();
 }
+
 require_once 'init.php';
 
 //CONFIGURATION for SmartAdmin UI
@@ -37,17 +38,32 @@ $page_nav = array(
         "icon" => "fa-home",
         "url" => "#ajax/dashboard.php",
     ),
+    "dashboard_admin" => array(
+        "title" => "Dashboard admin",
+        "icon" => "fa-file",
+        "url" => "#ajax/dashboard_admin.php",
+    ),
+    "profile" => array(
+        "title" => "Profile",
+        "icon" => "fa-user",
+        "url" => "#ajax/profile.php",
+    ),
     'administrator' => array(
         "title" => "Admin",
         "icon" => "fa-cubes",
         "sub" => array(
-            "roles" => array(
+            /*"roles" => array(
                 "title" => "Roles",
                 "icon" => "fa-sliders",
                 'sub' => array(
                     "role" => array("title" => "Group Roles", "url" => "#ajax/acl?gr=true"),
                     "generalrole" => array("title" => "General Roles", "url" => "#ajax/acl")
                 )
+            ),*/
+            "roles" => array(
+                "title" => "Update ACL",
+                "icon" => "fa-sliders",
+                "url" => "#ajax/acl?gr=true"
             ),
 
             "group" => array(
@@ -83,6 +99,42 @@ $page_nav = array(
                 'title' => 'Merge Duplication',
                 'icon' => 'fa-codepen',
                 'url' => '#ajax/merge-form.php'
+            ),
+            "depot" => array(
+                "title" => "Depot",
+                "icon" => "fa-building",
+                'sub' => array(
+                    'adddepot' => array("title" => "Add Depot", "url" => "#ajax/depot-form.php"),
+                    'listdepot' => array("title" => "Depot List", "url" => "#ajax/depot-list.php"),
+                )
+
+            ),
+            "containertype" => array(
+                "title" => "Container Type",
+                "icon" => "fa-dropbox",
+                'sub' => array(
+                    'addcontainertype' => array("title" => "Add Container Type", "url" => "#ajax/containertype-form.php"),
+                    'listcontainertype' => array("title" => "Container Type List", "url" => "#ajax/containertype-list.php"),
+                )
+
+            ),
+            "ratecontainer" => array(
+                "title" => "Rate Container",
+                "icon" => "fa-list-alt",
+                'sub' => array(
+                    'addratecontainer' => array("title" => "Add Rate Container", "url" => "#ajax/ratecontainer-form.php"),
+                    'listratecontainer' => array("title" => "Rate Container List", "url" => "#ajax/ratecontainer-list.php"),
+                )
+
+            ),
+            "rateshipping" => array(
+                "title" => "Rate Shipping",
+                "icon" => "fa-truck",
+                'sub' => array(
+                    'addrateshipping' => array("title" => "Add Rate Shipping", "url" => "#ajax/rateshipping-form.php"),
+                    'listrateshipping' => array("title" => "Rate Shipping List", "url" => "#ajax/rateshipping-list.php"),
+                )
+
             ),
             'setting' => array(
                 'title' => 'Setting',
@@ -136,7 +188,7 @@ $page_nav = array(
             'reportorder' => array("title" => "Order Report", "url" => "#ajax/report.php?r=order")
         )
     ),
-    "warranty" => array(
+    /*"warranty" => array(
         "title" => "Warranty",
         "icon" => "fa-wrench",
         'sub' => array(
@@ -145,7 +197,7 @@ $page_nav = array(
             'listwarranty' => array("title" => "Warranty List", "url" => "#ajax/warranty-list.php"),
             'reportwarranty' => array("title" => "Warranty Report", "url" => "#ajax/report.php?r=warranty")
         )
-    ),
+    ),*/
     "invoice" => array(
         "title" => "Invoice",
         "icon" => "fa-barcode",
@@ -156,7 +208,7 @@ $page_nav = array(
             'reportpayment' => array("title" => "Payment Report", "url" => "#ajax/report.php?r=payment"),
         )
     ),
-    "claim" => array(
+    /*"claim" => array(
         "title" => "Claim",
         "icon" => "fa-location-arrow",
         'sub' => array(
@@ -165,31 +217,16 @@ $page_nav = array(
             'reportclaim' => array("title" => "Claim Report", "url" => "#ajax/report.php?r=claim"),
             'claimlimit' => array("title" => "Add/Update Claim Limit", "url" => "#ajax/claim-limit-form.php"),
         )
+    ),*/
+
+    "calendar" => array(
+        "title" => "Calendar",
+        "icon" => "fa-calendar  ",
+        "url" => "#ajax/calendar.php",
     ),
 );
 
 $naviga = 'Navigation';
-
-// if (!isset($_SESSION['form_access'])) {
-//     $_SESSION['form_access'] = ['Dashboard', 'Navigation'];
-// }
-
-// if (isSuperAdmin()) {
-//     $page_nav["widgetcontrol"=> array(
-//         "title" => "Widget Control",
-//         "icon" => "fa-lg fa-fw fa-list-alt",
-//         "sub" => array(
-//             "widget2" => array(
-//                 "title" => "Widget Control SmartUI",
-//                 "url" => "#ajax/widget-control2.php",
-//             ),
-//             "widget3" => array(
-//                 "title" => "Widget Control Nestable",
-//                 "url" => "#ajax/widget-control.php",
-//             ),
-//         ),
-//     );
-// }
 
 $page_nav["mail"] = array(
     "title" => "Message Center",
@@ -254,51 +291,7 @@ $page_nav["help"] = array(
 if (isset($page_nav['task'])) {
     $page_nav['task']['sub']['tasktemplate'] = array('title' => 'Task Template', 'url' => '#ajax/task-template.php');
 }
-/*
-try {
-    if (hasPermission($naviga, 'help_page', 'show')) {
-        $extend_long = 8;
-        $help_extend = json_decode(file_get_contents(ASSETS_URL . '/data/help-extend.json'));
-        if (sizeof($help_extend) > 0) {
-            $page_nav['help']['sub']['help_page'] = array(
-                "title" => 'Help Content',
-            );
-            usort($help_extend, function ($item1, $item2) {
-                return $item2->index <=> $item1->index;
-            });
-            $hidden = '';
-            $count = 0;
-            foreach ($help_extend as $subhelp) {
-                if ($count == $extend_long) {
-                    $hidden = 'hidden';
-                    $page_nav['help']['sub']['help_page']['sub']['advanced_content'] = array(
-                        'title' => 'Advanced',
-                        'class' => 'advance_content" data-extend="help_page" data-index="' . $count,
-                        'icon' => 'fa-plus-square-o'
-                    );
-                }
 
-                if (isset($subhelp->title) && isset($subhelp->url) && isset($subhelp->id)) {
-                    $page_nav['help']['sub']['help_page']['sub'][$subhelp->id] = array(
-                        'title' => $subhelp->title,
-                        'class' => $hidden,
-                        'url' =>  '#ajax/help/' . $subhelp->url
-                    );
-                }
-                $count++;
-            }
-            if ($count > $extend_long) {
-                $page_nav['help']['sub']['help_page']['sub']['collapse_content'] = array(
-                    'title' => 'Collapse',
-                    'class' => 'collapse_content" data-extend="help_page" data-index="' . $count,
-                    'icon' => 'fa-minus-square-o'
-                );
-            }
-        }
-    }
-} catch (Exception $e) { }
-
-*/
 require_once 'php/write-navigation.php';
 if (hasPermission($naviga, 'help_page', 'show')) {
     // $page_nav['help']['sub']['help_page']['sub'] = (object) json_decode(file_get_contents('data/help/help-navigation.json'));
@@ -307,7 +300,7 @@ if (hasPermission($naviga, 'help_page', 'show')) {
 
 
 if (hasPermission($naviga, 'listwarranty', 'show')) {
-    $page_nav['warranty']['sub']['editwarranty'] = array("title" => "Add/Edit Warranty", "url" => "#ajax/warranty-form.php");
+  //  $page_nav['warranty']['sub']['editwarranty'] = array("title" => "Add/Edit Warranty", "url" => "#ajax/warranty-form.php");
 }
 
 $page_nav["import"] = array(
@@ -320,7 +313,9 @@ $page_nav["import"] = array(
 );
 
 if (!isSuperAdmin()) {
+    //print_r($_SESSION['int_acl']['acl_rules']["ProductForm"]);
     foreach ($page_nav as $ul => $value) {
+        //echo "<pre>";print_r($ul);echo "</pre>";
         if (hasPermission($naviga, $ul, 'show')) {
             if (isset($page_nav[$ul]['sub'])) {
                 foreach ($page_nav[$ul]['sub'] as $li => $a) {
@@ -343,6 +338,7 @@ if (!isSuperAdmin()) {
     }
 }
 
+//die();
 if(isset($page_nav['help']['sub']['ticketlist'])){
     $page_nav['help']['sub']['ticketedit'] = array('title' => 'Ticket Edit', "class"=>"hidden", "url" => "#ajax/help-desk-edit.php");
 }

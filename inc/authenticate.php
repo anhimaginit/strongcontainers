@@ -7,8 +7,9 @@ $myhost = dirname(__DIR__);
 $_tmp = '';
 $_tmp2 = '';
 if ($_SERVER['HTTP_HOST'] == 'localhost') {
-    $_tmp = 'https://api.warrantyproject.com';
-    // $_tmp = 'https://api.salescontrolcenter.com';
+    //$_tmp = 'https://api.warrantyproject.com';
+    $_tmp = 'http://localhost/CRMAPI';
+    //$_tmp = 'https://api.salescontrolcenter.com';
     $_tmp2 = 'http://localhost/crm';
 } else {
     $_tmp = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://api.' . $_SERVER['HTTP_HOST'];
@@ -51,6 +52,7 @@ class Authentication
         if ($_SERVER['HTTP_HOST'] == 'localhost') $canAccess = true;
         $id = getID();
         $current_id = $_SESSION['userID'];
+        if($current_file =='quote') $canAccess = true;
         switch ($current_file) {
             case 'contact-form':
                 if ($canAccess) return true;
@@ -132,6 +134,18 @@ class Authentication
             case 'product-form.php':
                 $title = 'Product';
                 break;
+            case 'depot-form.php':
+                $title = 'Depot';
+                break;
+            case 'containertype-form.php':
+                $title = 'Container Type';
+                break;
+            case 'ratecontainer-form.php':
+                $title = 'Rate Container';
+                break;
+            case 'rateshipping-form.php':
+                $title = 'Rate Shipping';
+                break;
             case 'order-form.php':
                 $title = 'Order';
                 break;
@@ -159,6 +173,18 @@ class Authentication
                 break;
             case 'product-list.php':
                 $title = 'Product List';
+                break;
+            case 'depot-list.php':
+                $title = 'Depot List';
+                break;
+            case 'containertype-list.php':
+                $title = 'Container Type List';
+                break;
+            case 'ratecontainer-list.php':
+                $title = 'Rate Container List';
+                break;
+            case 'rateshipping-list.php':
+                $title = 'Rate Shipping List';
                 break;
             case 'order-list.php':
                 $title = 'Order List';

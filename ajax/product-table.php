@@ -22,24 +22,31 @@
       <tfoot>
          <tr class="bold">
             <td colspan="7" class="text-right">
-               <div class="padding-5">Discount (Code and Product): </div>
+              <!-- <div class="padding-5">Discount (Code and Product): </div>
                <div class="padding-5">Total included Processing fee: </div>
                <div class="padding-5">Other Invoice Payment: </div>
-               <div class="padding-5">Balance: </div>
-               <div class="padding-5">Total Paid Amount: </div>
+               <div class="padding-5">Balance: </div>               -->
                <div class="padding-5">Order Total: </div>
+                <div class="padding-5">Total Paid Amount: </div>
+                <div class="padding-5">Balance: </div>
+                <!--<div class="padding-5">Payment: </div>
                <div class="padding-5 _contract_overage">Contract Overage: </div>
-               <div class="padding-5">Grand Total: </div>
+               <div class="padding-5">Grand Total: </div> -->
             </td>
             <td colspan="1" class="text-right">
-               <div style="padding-top:5px; padding-bottom:5px;" id="_order_discount">$ 0.00</div>
+               <!--<div style="padding-top:5px; padding-bottom:5px;" id="_order_discount">$ 0.00</div>
                <div style="padding-top:5px; padding-bottom:5px;"><span id="_processing_order">$ 0.00</span>/<span id="_billing_circle">Month</span></div>
                <div style="padding-top:5px; padding-bottom:5px;" id="_other_invoice_payment">$ 0.00</div>
-               <div style="padding-top:5px; padding-bottom:5px;" id="_balance_order">$ 0.00</div>
-               <div style="padding-top:5px; padding-bottom:5px;" id="_payment_order">$ 0.00</div>
+               -->
+
                <div style="padding-top:5px; padding-bottom:5px;" id="_total_order">$ 0.00</div>
-               <div class="_contract_overage" style="padding-top:5px; padding-bottom:5px;" id="_contract_overage">$ 0.00</div>
-               <div style="padding-top:5px; padding-bottom:5px;" id="_grand_total_order">$ 0.00</div>
+               <div style="padding-top:5px; padding-bottom:5px;" id="_payment_order">$ 0.00</div>
+
+                <div style="padding-top:5px; padding-bottom:5px;" id="_balance_order">$ 0.00</div>
+                <!--<div style="padding-top:5px; padding-bottom:5px;" id="_payment">$ 0.00</div>
+                <input type="hidden" id="need_payment" value="0">
+                <div class="_contract_overage" style="padding-top:5px; padding-bottom:5px;" id="_contract_overage">$ 0.00</div>
+               <div style="padding-top:5px; padding-bottom:5px;" id="_grand_total_order">$ 0.00</div>-->
             </td>
          </tr>
       </tfoot><?php } else if ($_page == 'warranty-form') { ?>

@@ -8,6 +8,7 @@ $_authenticate->checkFormPermission($order_form);
 $operation_order = (getID() ? 'edit' : 'add');
 $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 ?>
+    <link rel="stylesheet" href="<?= ASSETS_URL ?>/css/distance_matrix_style.css">
 <section id="widget-grid" class="">
 <div class="row">
 
@@ -35,7 +36,8 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 			</header>
 			<!-- widget div-->
 			<div class="jarviswidget-body" style="max-width:100%">
-
+                <?php include_once 'modal/modal_add_container.php'; ?>
+                <?php include_once 'modal/modal_success.php'; ?>
 				<!-- end widget edit box -->
 				
 				<?php 
@@ -45,7 +47,7 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 				<div class="modal animated fadeInDown" style="display:none; margin:auto; max-height:600px;" id="add_contact_modal">
 					<div class="modal-dialog"  style="min-width:60%;">
 						<div class="modal-content">
-							<?php include('contact-form.php')?>
+							<?php include('contact-form-order.php')?>
 						</div>
 					</div>
 				</div>
@@ -69,11 +71,10 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 								<input type="text" class="form-control" name="order_title"<?= hasPermission($order_form, 'order_title', $operation_order ) ? '' : ' readonly' ?>>
 							</section>
 							<section class="col col-xs-<?= $canAddContact ? 5 : 6?>">
-								<label class="input">Bill To: <span class="link_to" data-view="link_to" data-form="#order_form" data-control="bill_to" data-name="contact-form" data-param="id"></span></label>
+								<label class="input">Bill To<span class="c-orange">(*, first selected): </span> <span class="link_to" data-view="link_to" data-form="#order_form" data-control="bill_to" data-name="contact-form" data-param="id"></span></label>
 								<select name="bill_to" class="form-control select2" id="bill_to_ID" style="width:100%" <?= hasPermission($order_form, 'bill_to', $operation_order ) ? '' : ' disabled' ?>></select>
 								<p></p>
 							</section>
-
 							<?php if($canAddContact && basename($_SERVER['PHP_SELF'])=='order-form.php'){ ?>
 
 							<section class="col col-xs-1" style="margin-top:19px; margin-left:-22px;">
@@ -81,6 +82,26 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 							</section>
 
 							<?php } ?>
+                            <?php
+                            if(hasPermission($order_form, 'order_doors', $operation_order)){
+                                ?>
+                                <section class="col col-6">
+                                    <label class="input">Doors:</label>
+                                    <select class="form-control" name="order_doors" id="order_doors">
+                                        <option value=""></option>
+                                        <option value="forward to cab of truck">Forward to cab of truck</option>
+                                        <option value="to rear of trailer">To rear of trailer</option>
+                                    </select>
+                                </section>
+                            <?php }?>
+                            <?php
+                            if(hasPermission($order_form, 'order_releases', $operation_order)){
+                                ?>
+                                <section class="col col-5">
+                                    <label class="input">Releases #:</label>
+                                    <input type="text" class="form-control" name="order_releases" id="order_releases">
+                                </section>
+                            <?php }?>
 						</div>
 					</fieldset>
 					<fieldset>
@@ -99,7 +120,7 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 						<div class="row" id="discount_pane">
 								
 						</div>
-						<div class="row">
+						<!--<div class="row">
 								<section class="col col-6">
 									<label class="input">Discount code:</label>
 									<label class="input">
@@ -107,13 +128,24 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 										<b class="tooltip tooltip-top-right"><i class="fa fa-barcode txt-color-teal"></i> Enter your discount code</b>
 									</label>
 								</section>
-						</div>
+						</div> -->
 					</fieldset>
+                    <!--
 					<?php include 'billing.php';  ?>
+                    -->
+                   <!-- <fieldset>
+                        <div class="row">
+                            <section class="col col-6">
+                                <label class="input">Driver: <span class="link_to" data-view="link_to" data-form="#order_form" data-control="driver" data-name="contact-form" data-param="id"></span></label>
+                                <select name="driver" id="driverId" class="form-control select2" style="width:100%"><option value="">Select Driver</option></select><i></i>
+                                <p></p>
+                            </section>
+                        </div>
+                    </fieldset>-->
 					<fieldset>
 						<div class="row">
 							<section class="col col-6">
-								<label class="input">Salesperson: <span class="link_to" data-view="link_to" data-form="#order_form" data-control="salesperson" data-name="contact-form" data-param="id"></span></label>
+								<label class="input">Saleman: <span class="link_to" data-view="link_to" data-form="#order_form" data-control="salesperson" data-name="contact-form" data-param="id"></span></label>
 								<select name="salesperson" id="salespersonId" class="form-control select2" style="width:100%" <?= hasPermission($order_form, 'salesperson', $operation_order ) ? '' : ' disabled' ?>><option value="">Select Salesperson</option></select><i></i>
 								<p></p>
 							</section>
@@ -144,7 +176,7 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 	</article>
 </div>
 </section>
-<script src="./js/script/billing/billing.js"></script>
+<script src="<?= ASSETS_URL ?>/js/script/billing/billing.js"></script>
 <script src="<?= ASSETS_URL ?>/js/script/select-template.js" type="text/javascript"></script>
 <script src="<?= ASSETS_URL ?>/js/util/select-link.js" type="text/javascript"></script>
 <script src="<?= ASSETS_URL ?>/js/util/control-select2.js"></script>
@@ -152,6 +184,14 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 <script src="<?= ASSETS_URL ?>/js/script/order-form.products.js" type="text/javascript"></script>
 <script src="<?= ASSETS_URL ?>/js/script/note.js" type="text/javascript"></script>
 <script src="<?= ASSETS_URL ?>/js/script/order-form.js" type="text/javascript"></script>
+-->
+
 <?php if (getID() && $order_current_permission==true) { ?>
 <script>new ControlPage('#order-form-control');</script>
 <?php } ?>
+
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDqqFUPT6qHW2hvTEfwLw6IaXs253qrlmU&v=weekly"
+    defer >
+</script>
+<script src="<?= ASSETS_URL ?>/js/script/distance_matrix/find_depot.js" type="text/javascript"></script>

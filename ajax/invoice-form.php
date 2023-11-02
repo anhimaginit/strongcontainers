@@ -58,7 +58,8 @@ $current_permission = canAddForm($invoice_form);
               <div class="row">
                 <section class="col col-4">
                   <label class="input">Invoice Number</label>
-                  <div class="form-group">
+                    <input class="form-control" style="width: 97%" name="invoiceid" type="text" disabled="true">
+                 <!-- <div class="form-group">
                     <div class="col col-md-12">
                       <div class="row">
                         <div class="col-sm-12">
@@ -66,15 +67,17 @@ $current_permission = canAddForm($invoice_form);
                             <span class="input-group-addon" id="invoice_extend_number"><?= date("Y"); ?></span>
                             <input class="form-control" name="invoiceid" type="number" max-length="6" <?= hasPermission($invoice_form, 'invoiceid', $operation_invoice) ? '' : ' readonly' ?>>
                             <span class="input-group-addon item_addon" style="min-width:20px; text-align:center; display:none;"><i class="fa fa-check" style="color:green;"></i></span>
+
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <p id="invoice_error"></p>
+                    -->
                 </section>
                 <section class="col col-4">
-                  <label class="input">Customer</label>
+                  <label class="input">Customer(*)</label>
                   <select name="customer" class="form-control" style="width:100%" <?= hasPermission($invoice_form, 'customer', $operation_invoice) ? '' : ' disabled' ?>>
                     <option value="">Select Item</option>
                   </select><i></i>
@@ -88,7 +91,7 @@ $current_permission = canAddForm($invoice_form);
               </div>
               <div class="row">
                 <section class="col col-4">
-                  <label class="input">Order</label>
+                  <label class="input">Order(*)</label>
                   <label class="select">
                     <select name="order_id" id="order_search" <?= hasPermission($invoice_form, 'order_id', $operation_invoice) ? '' : ' disabled' ?>></select><i></i>
                   </label>

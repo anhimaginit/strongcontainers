@@ -7,16 +7,18 @@ header('Access-Control-Allow-Credentials: true');
 if (!session_id()) session_start();
 $data = $_POST['data'];
 foreach ($data as $key => $value) {
-    $_SESSION[$key] = $value;
+     $_SESSION[$key] = $value;
 }
-
+//print_r($_SESSION['int_acl']['acl_rules']["Navigation"]);
+//die();
 $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 
 $_tmp = '';
 $_tmp2 = '';
 if ($_SERVER['HTTP_HOST'] == 'localhost') {
+    $_tmp ="http://localhost/CRMAPI";
     // $_tmp = 'https://api.salescontrolcenter.com';
-    $_tmp = 'https://api.warrantyproject.com';
+    //$_tmp = 'https://api.warrantyproject.com';
     $_tmp2 = 'http://localhost/crm';
 } else {
     $_tmp = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://api.' . $_SERVER['HTTP_HOST'];

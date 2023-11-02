@@ -189,6 +189,7 @@ Login.prototype = {
                   data: __mData,
                   dataType: 'json',
                   success: function (_data) {
+                      //return;
                      if (_data.AUTH == true) {
                         _data.firebase_user = JSON.parse(JSON.stringify(result.user));
                         localStorage.setItemValue('credential', JSON.stringify(result));
@@ -271,16 +272,19 @@ Login.prototype = {
    setDataCookie: function (_data, __mData) {
       var short = []; var form_access = [];
       var int__acl = _data.contact.acl_list.int_acl;
-      if (int__acl.length > 0) int__acl = int__acl[0];
+      if (int__acl.length > 0)    int__acl = int__acl[0];
+       var g_name = ''
+       if(int__acl.group_name !=undefined) g_name = int__acl.group_name;
       short.push({
          department: int__acl.unit,
          level: int__acl.level,
-         group: int__acl.group_name
+         group: g_name
       });
 
       if (int__acl.acl_rules[0] != undefined) int__acl.acl_rules = int__acl.acl_rules[0];
 
       for (var key in int__acl.acl_rules) {
+          //console.log(key)
          form_access.push(key);
       }
 
@@ -300,9 +304,12 @@ Login.prototype = {
          "jwt": _data.contact.jwt,
          "jwt_refresh": _data.contact.jwt,
          "int_acl": int__acl,
-         "token": localStorage.getItemValue('token'),
-         "form_access": form_access,
-         'firebase_user': _data.firebase_user
+         //"form_access": form_access,
+         'firebase_user': _data.firebase_user,
+          'driver_avatar': _data.contact.driver_avatar,
+          'driver_rate': _data.contact.driver_rate,
+          'primary_street_address1': _data.contact.primary_street_address1,
+          'primary_email': _data.contact.primary_email,
          // 'IDs': _data.contact.IDs
       };
 
@@ -318,18 +325,24 @@ Login.prototype = {
       delete _data.contact.jwt_refresh;
       delete _data.contact.IDs;
       delete _data.contact.acl_list;
-      saveData.user_info = _data.contact;
-      delete saveData.user_info.archive_id;
-
+      //saveData.user_info = _data.contact;
+       saveData.user_info = {
+           ID: _data.contact.ID,
+           primary_phone: _data.contact.primary_phone
+       }
+      //delete saveData.user_info.archive_id;
       // $.cookie("user", JSON.stringify(saveData.user), { path: '/' });
       Login.prototype.saveSession(saveData);
    },
    setLocalStorageLogin: function (_data) {
+       //console.log(_data.contact)
       localStorage.setItemValue('jwt', _data.contact.jwt);
       localStorage.setItemValue('jwt_refresh', _data.contact.jwt);
       localStorage.setItemValue('int_acl_short', JSON.stringify(_data.short));
       localStorage.setItemValue('level', _data.short[0].level);
       localStorage.setItemValue('userID', _data.contact.ID);
+       localStorage.setItemValue('login_email', _data.contact.primary_email);
+       localStorage.setItemValue('login_phone', _data.contact.primary_phone);
       localStorage.setItemValue('actor', _data.actor);
       localStorage.setItemValue('user_name', _data.contact.first_name + ' ' + _data.contact.last_name);
 

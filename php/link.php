@@ -1,8 +1,9 @@
 <?php
 $host = 'https://api.salescontrolcenter.com';
 if($_SERVER['HTTP_HOST'] == 'localhost'){
+    $host = 'http://localhost/CRMAPI';
     // $host = 'https://api.salescontrolcenter.com';
-    $host = 'https://api.warrantyproject.com';
+    //$host = 'https://api.warrantyproject.com';
 }else{
     $host = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://api.' . $_SERVER['HTTP_HOST'];
 }
@@ -34,6 +35,9 @@ $link = array(
 
     '_roles' => $host . '/_roles.php',
     '_claimEmployee' => $host . '/_claimEmployee.php',
-    
+
+    '_depots' => $host . '/_depots.php',
+    '_container_type'=>$host .'/_container_type.php',
+    '_driverList'=>$host .'/_driverList.php',
 );
  ?>

@@ -4,6 +4,7 @@ SelectLoader.prototype.constructor = SelectLoader;
 SelectLoader.prototype = {
     loadDataSelectContact: function (_url, selectElement, id, selected, callback) {
         $.ajax({
+            async:true,
             url: _url,
             type: 'post',
             data: $.extend({}, template_data),
@@ -242,6 +243,9 @@ SelectLoader.prototype = {
         _data.order_id = order_id;
         if (document.location.href.indexOf('invoice-form') > 0 && getUrlParameter('id') && balance) {
             _data.balance = balance
+        }
+        if (document.location.href.indexOf('invoice-form') > 0 && getUrlParameter('id')) {
+            _data.inv_id = getUrlParameter('id')
         }
         $.ajax({
             url: link._orderIDByBillTo,

@@ -8,6 +8,18 @@ $mylink = HOST . '/_groupListUnit.php';
 if (isSuperAdmin()) {
    $mylink = HOST . '/_groupList.php';
 }
+//////////
+/*
+$groupEdited = HTTPMethod::httpPost(HOST . '/_groupGetByID.php', array(
+    'ID' => getID(),
+    'token' => $_SESSION['token'],
+    'jwt' => $_SESSION['jwt'],
+    'private_key' => $_SESSION['userID']
+));
+if (isset($groupEdited->group)) {
+    $groupEdited = $groupEdited->group;
+} */
+//////////
 
 $group = HTTPMethod::httpPost($mylink, array(
    'token' => $_SESSION['token'],
@@ -114,8 +126,8 @@ if (isset($groupEdited->ID)) {
                               <select name="role" class="form-control" style="width:100%" <?= hasPermission($formGroup, 'role', $roleGroup) ? '' : 'disabled' ?>>
                                  <option value="">Select Role</option>
                                  <?php
-
                                     foreach ($role->roles as $r) {
+
                                        $checked =  $isUpdate == true && $r == $groupEdited->role ? 'selected' : '';
                                        echo '<option value="' . $r . '" ' . $checked . '>' . $r . '</option>';
                                     };

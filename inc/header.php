@@ -168,7 +168,10 @@
 		<!-- HEADER -->
 		<header id="header">
 			<div id="logo-group" onclick="window.open('./', '_self')" class="pointer">
+                <span id="logo"> <img src="img/setting/logo/logo.png" alt="Strong container"> </span>
+                <!--
 				<span id="logo"> <img src="<?= $_SESSION['settingPage']->logo ?>" alt="<?= $_SESSION['settingPage']->page_title ?>"> </span>
+			    -->
 			</div>
 			<div class="pull-right">
 				<div id="hide-menu" class="btn-header pull-right">
@@ -250,7 +253,8 @@
                 <?php
                 $API_server = '';
                 if ($_SERVER['HTTP_HOST'] == 'localhost') {
-                $API_server = 'https://api.warrantyproject.com';
+                    $API_server ="http://localhost/CRMAPI";
+                //$API_server = 'https://api.warrantyproject.com';
                 // $API_server = 'https://api.salescontrolcenter.com';
                 } else {
                 $API_server = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://api.' . $_SERVER['HTTP_HOST'];

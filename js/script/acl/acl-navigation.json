@@ -1,6 +1,7 @@
 {
     "dashboard":{"title":"Dashboard"},
-    "administrator":{"title":"Admin", "sub":[
+    "administrator":{"title":"Admin",
+        "sub":[
         {"roles":{"title":"Roles", "sub": [{"role" : {"title":" Group Roles"}}, {"generalrole": {"title": "General Roles"}}]}},
         {"state_manage":{"title":"State"}},
         {"group":{"title":"Group","sub":[{"addgroup":{"title":"Add Group"}},{"listgroup":{"title":"Group List"}}]}},

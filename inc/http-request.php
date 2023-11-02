@@ -13,11 +13,34 @@ public static function httpPost($url, $data)
     $response = curl_exec($curl);
 
     curl_close($curl);
-    // echo($response);
-    // echo '<br>';
+   // echo "<pre>";print_r($url) ;echo "</pre>";
+    //echo "<pre>";print_r($data) ;echo "</pre>";
+   // echo "<pre>";print_r(json_decode($response)) ;echo "</pre>";
+   // die();
 
     return json_decode($response);
 }
+
+    public static function httpPost1($url, $data)
+    {
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        // echo "<pre>";print_r($url) ;echo "</pre>";
+         //echo "<pre>";print_r($data) ;echo "</pre>";
+         //echo "<pre>";print_r($response) ;echo "</pre>";
+        //die();
+
+        return json_decode($response,true);
+    }
 }
 
 function hasIdParam()

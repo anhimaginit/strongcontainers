@@ -69,7 +69,8 @@ ProductList.prototype = {
                     destroy: true,
                     columns: [
                         { data: null },
-                        { data: function (data, type, row) { return (data.prod_photo && data.prod_photo != '' ? '<img src="' + host + data.prod_photo + '"' : '<img src="' + urlPhoto.itemProduct + '"') + ' class="product-img">'; }, "searchable": true },
+                        { data: function (data, type, row) {
+                            return (data.prod_photo && data.prod_photo != '' ? '<img src="' + data.prod_photo + '"' : '<img src="' + urlPhoto.itemProduct + '"') + ' class="product-img">'; }, "searchable": true },
                         { data: 'SKU', "searchable": true },
                         { data: 'prod_name', "searchable": true },
                         {

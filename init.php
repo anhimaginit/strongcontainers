@@ -31,7 +31,7 @@ $document_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https'
 $app_path = $document_root;
 $app_url = $document_url;
 if (is_numeric(strrpos($app_url, 'localhost'))) {
-	$app_url = $app_url . '/crm';
+	//$app_url = $app_url . '/crm';
 }
 
 if (strpos(__DIR__, $document_root) === 0) {
@@ -61,12 +61,18 @@ define('FORM_ACCESS', array(
 	'CompanyForm' => 'company-form',
 	'InvoiceForm' => 'invoice-form',
 	'ProductForm' => 'product-form',
+	'DepotForm' => 'depot-form',
+	'ContainerTypeForm' => 'containertype-form',
+	'RateContainerForm' => 'ratecontainer-form',
+	'RateShippingForm' => 'rateshipping-form',
 	'SettingForm' => 'setting',
 	'DiscountForm' => 'discount',
 	'PermissionForm' => 'role-form',
 	'TaskForm' => 'task',
 	'BillingTemplateForm' => 'billing',
 	'Help' => 'help-desk',
+    'calendar' => 'calendar',
+    'profile' => 'profile'
 ));
 
 

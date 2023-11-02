@@ -95,6 +95,10 @@ OrderProducts.prototype = {
             }
             $(this).closest('tr').find('input.line').val(numeral(_orderProducts.getTotalLine(null, index)).format('$ 0,0.00'));
             _orderProducts.getTotalPrice();
+
+            var payment = numeral($('#_total').text()).value() - numeral($('#_paid').text()).value()
+            $('#_payment').text(numeral(payment).format('$ 0,0.00'));
+            $('.btnPaymentOrder').prop("disabled", true)
         });
 
         $('.SKU_search').typeahead({
@@ -139,12 +143,14 @@ OrderProducts.prototype = {
                 // }
             },
         }).bind("typeahead:selected", function (obj, data) {
-            setProductData(this, data);
+                var $me =$(this)
+                setProductData(this, data);
                 //close type head
                 $('.tt-open').css({"display":"none"})
                 $('.tt-open').removeClass("tt-open")
+                var index = $(this).closest('tr').index();
+        })
 
-        });
 
         $('.product_search').typeahead({
             hint: false,
@@ -204,9 +210,10 @@ OrderProducts.prototype = {
             //default value
             if (!data.quantity) data.quantity = 1;
             if (!data.discount) data.discount = 0;
-            if (!data.price && data.prod_price) data.price = data.prod_price;
+            if (!data.price && data.prod_price) data.prod_price;
             if (!data.sku && data.SKU) data.sku = data.SKU;
             if (!data.name && data.prod_name) data.name = data.prod_name;
+            if (!data.container_type_id) data.container_type_id = data.container_type_id;
             if (_orderProducts.checkSKU(data.sku)) {
                 $('#table_product_ordered tbody').find('td._itemSKU_' + data.sku).closest('tr').addClass('danger')
                 setTimeout(function () {
@@ -227,6 +234,8 @@ OrderProducts.prototype = {
                     hasWarrantyIndex = index;
                 }
             }
+
+            $(elem).closest('tr').find('.container_type_id').val(data.container_type_id)
             var tds = $(elem).closest('tr').find('td');//anh
             if (index < productSelectArray.length) {
                 tds.find('._itemSKU_' + productSelectArray[index].sku).removeClass('._itemSKU_' + productSelectArray[index].sku);
@@ -278,6 +287,10 @@ OrderProducts.prototype = {
             },10)
             _orderProducts.getTotalPrice();
             orderDiscount.displayDiscount();
+
+            var payment = numeral($('#_total').text()).value() - numeral($('#_paid').text()).value()
+            $('#_payment').text(numeral(payment).format('$ 0,0.00'));
+            $('.btnPaymentOrder').prop("disabled", true)
         }
     },
 
@@ -324,12 +337,15 @@ OrderProducts.prototype = {
                 price = numeral($tds.find('.price').val()).value(),
                 discount = numeral($tds.find('input.discount').val()).value(),
                 discount_type = $tds.find('select.discount_type').val();
+           // console.log("_class= "+_class);
+            //console.log(discount);
             if (_class == 'Discount') {
                 result -= price * quantity;
             } else {
                 result += price * quantity - opTotalLine(price, quantity, discount, discount_type);
             }
         });
+        //console.log(" re= "+result);
         return result;
     },
 
@@ -426,21 +442,30 @@ OrderProducts.prototype = {
         }
 
         if (data.grand_total != undefined) {
-            $('#_grand_total').text(numeral(data.grand_total).format('$ 0,0.00'));
-            window.grand_total = data.grand_total;
+            $('#_grand_total').css({"display":"none"})
+           // $('#_grand_total').text(numeral(data.grand_total).format('$ 0,0.00'));
+           // window.grand_total = data.grand_total;
         }
 
         if (data.processing_fee != undefined && data.payment_period != undefined) {
-            $('#_total_processing_fee').text(numeral(data.processing_fee * data.payment_period).format('$ 0,0.00'));
+          //  $('#_total_processing_fee').text(numeral(data.processing_fee * data.payment_period).format('$ 0,0.00'));
         }
 
         let contract_overage = data.contract_overage;
         if (contract_overage != undefined && contract_overage > 0) {
-            window.contract_overage = numeral(contract_overage).value();
-            $('#_contract_overage').text(numeral(data.contract_overage).format('$ 0,0.00'));
+          //  window.contract_overage = numeral(contract_overage).value();
+           // $('#_contract_overage').text(numeral(data.contract_overage).format('$ 0,0.00'));
         } else if (contract_overage != undefined && contract_overage <= 0) {
-            window.contract_overage = 0;
-            $('#_contract_overage').text('$ 0.0');
+           // window.contract_overage = 0;
+          //  $('#_contract_overage').text('$ 0.0');
+        }
+
+        if (data.paid != undefined) {
+            $('#_paid').text(numeral(data.paid).format('$ 0,0.00'));
+        }
+
+        if (data.payment != undefined) {
+            $('#_payment').text(numeral(data.payment).format('$ 0,0.00'));
         }
     },
     checkDisplayHasWarranty: function () {
@@ -450,9 +475,9 @@ OrderProducts.prototype = {
             if ($input.val() == 'Warranty') has = true;
         })
         if (has && !window.order_warranty_id) {
-            $('#btnForwardOrderToWarranty').show();
+         //   $('#btnForwardOrderToWarranty').show();
         } else {
-            $('#btnForwardOrderToWarranty').hide();
+          //  $('#btnForwardOrderToWarranty').hide();
         }
         return has;
     },
@@ -467,7 +492,7 @@ OrderProducts.prototype = {
         return $('#table_product_ordered tbody').find('input._itemSKU_' + sku).length > 0;
     },
 
-    createInputFields: function (data, unbindEvent) {
+    createInputFields: function (data, unbindEvent,quote_temp) {
         if (data) {
             productSelected[data.sku] = data;
             productSelectArray.push(data);
@@ -480,9 +505,50 @@ OrderProducts.prototype = {
             if (!data.line_total)
                 data.line_total = opTotalLine(data.price, data.quantity, data.discount, data.discount_type);
         }
+        var check_rate =''
+        if(data.check_rate ==1) check_rate ='checked="checked"'
+
+        var depot_id =''
+        var depot_name =''
+        var container_type_id =''
+        var container_rate =''
+        var container_type_name =''
+        var depot_address =''
+        var rate_mile =''
+        var vendor_id =''
+        var prod_name =''
+        var prod_id =''
+        var distance =''
+        if (quote_temp ){
+            if(quote_temp.depot_id) depot_id = quote_temp.depot_id
+            if(quote_temp.depot_name) depot_name = quote_temp.depot_name
+            if(quote_temp.container_type_id) container_type_id = quote_temp.container_type_id
+            if(quote_temp.container_rate) container_rate = quote_temp.container_rate
+            if(quote_temp.container_type_name) container_type_name = quote_temp.container_type_name
+            if(quote_temp.depot_address) depot_address = quote_temp.depot_address
+            if(quote_temp.rate_mile) rate_mile = quote_temp.rate_mile
+            if(quote_temp.vendor_id) vendor_id = quote_temp.vendor_id
+            if(quote_temp.prod_name) prod_name = quote_temp.prod_name
+            if(quote_temp.prod_id) prod_id = quote_temp.prod_id
+            if(quote_temp.distance) distance = quote_temp.distance
+        }
+        if(container_type_id==''){
+            container_type_id = data.container_type_id
+        }
         var _html =
             '<tr>' +
-            '<td class="hidden"><input type="hidden" value="' + (data.prod_id ? data.prod_id : data.id ? data.id : '') + '"></td>' +
+                '<input type="hidden" class="depot_id" value="'+depot_id+'">' +
+                '<input type="hidden" class="depot_name" value="'+depot_name+'">' +
+                '<input type="hidden" class="container_type_id" value="'+container_type_id+'">' +
+                '<input type="hidden" class="container_rate" value="'+container_rate+'">' +
+                '<input type="hidden" class="container_type_name" value="'+container_type_name+'">' +
+                '<input type="hidden" class="depot_address" value="'+depot_address+'">' +
+                '<input type="hidden" class="rate_mile" value="'+rate_mile+'">' +
+                '<input type="hidden" class="vendor_id" value="'+vendor_id+'">' +
+                '<input type="hidden" class="prod_name" value="'+prod_name+'">' +
+                '<input type="hidden" class="prod_id" value="'+prod_id+'">' +
+                '<input type="hidden" class="distance" value="'+distance+'">' +
+            '<td class="hidden"><input class="prod_id_id" type="hidden" value="' + (data.prod_id ? data.prod_id : data.id ? data.id : '') + '"></td>' +
             '<td class="hasinput input"><input type="number" value="' + (data.quantity ? data.quantity : data.qty ? data.qty : 1) + '" min="1" class="form-control quantity" placeholder="Quantity"></td>' +
             '<td class="hasinput input"><input type="text" value="' + (data.sku ? data.sku : '') + '" class="form-control SKU_search input_search search" placeholder="SKU"></td>' +
             '<td class="hasinput input"><input type="text" value="' + (data.prod_name ? data.prod_name : '') + '" class="form-control product_search input_search search" placeholder="Name"></td>' +
@@ -495,11 +561,25 @@ OrderProducts.prototype = {
             '<option value="%" ' + (data.discount_type == '%' ? 'selected' : '') + '>%</option>' +
             '</select>' +
             '</td>' +
-            '<td class="hasinput text-right" style="max-width:50px;"><input class="form-control input-currency bold line input-readonly" readonly="true" placeholder="0.00" value="' + numeral(data.line_total ? data.line_total : '0.00').format('0,0.00') + '"></td>';
+            '<td class="hasinput text-right" style="max-width:50px;"><input class="form-control input-currency bold line input-readonly total-line" readonly="true" placeholder="0.00" value="' + numeral(data.line_total ? data.line_total : '0.00').format('0,0.00') + '"></td>';
         if (!unbindEvent) {
-            _html += '<td class="hasinput input" style="width:fit-content">' +
-                '<button type="button" title="Remove this product" class="btn btn-sm btn-default label btnRemoveProduct"><i class="fa fa-trash text-danger"></i></button>' +
-                '</td>';
+            _html += '<td class="hasinput input input-0">' +
+                '<div class="row col">' +
+                '<div class="col col-6">' +
+                    '<div class="inline-group">'+
+                        '<label class="checkbox">' +
+                            '<input type="checkbox" class="check-rate" '+check_rate+'>' +
+                            '<i></i>' +
+                        '</label>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="col col-6">' +
+                    '<button type="button" title="Remove this product" class="btn btn-sm btn-default label btnRemoveProduct">' +
+                        '<i class="fa fa-trash text-danger"></i>' +
+                    '</button>' +
+                '</div>' +
+            '</div>' +
+            '</td>';
         }
         _html += '</tr>';
 
@@ -522,6 +602,11 @@ OrderProducts.prototype = {
             ob.price = numeral($tds.find('.price').val()).value();
             ob.discount = numeral($tds.find('input.discount').val()).value();
             ob.discount_type = $tds.eq(7).find('select').val();
+            ob.container_type_id = $(elem).find('.container_type_id').val();
+
+            var check_rate =0
+            if($(elem).find('td .check-rate').is(":checked")) check_rate =1
+            ob.check_rate =check_rate
 
             ob.discount == '' ? ob.discount = 0 : '';
 

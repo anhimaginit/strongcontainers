@@ -107,9 +107,11 @@ TaskList.prototype = {
             { data: 'cus_name', "searchable": true },
             { data: 'actionset', "searchable": true, className: 'uppercase-first col-md-1' },
             { data: function(data){return data['status'] || '&nbsp;'}, "searchable": true, className: 'uppercase-first col-md-1' },
-            { data: 'dueDate', "searchable": true },
-            { data: 'doneDate', "searchable": true },
-            {
+
+             { data: 'order_title', "searchable": true },
+            { data: 'product_sku', "searchable": true },
+             {data: 'delivery_date', "searchable": true },
+            /*{
                data: function (data) {
                   if(data.dueDate) {
                       var duration = (new Date(data.dueDate).getTime() + getTimeFromString(data.time) - new Date().getTime()) / 1000;
@@ -120,19 +122,19 @@ TaskList.prototype = {
 
 
                }, searchable: true, title: 'Time'
-            },
+            },*/
          ],
          createdRow: function (row, data, dataIndex) {
             if (data.status == 'done') {
                $(row).addClass('warning');
-            } else if (data.status == 'open') {
+            } else if (data.status == 'NEEDS TO BE SCHEDULED') {
                $(row).addClass('light');
             } 
             
             // else if (data.status == 'close') {
             //    $(row).addClass('hidden');
             // }
-            if (data.status != 'close' && data.status != 'done') {
+            if (data.status != 'CLOSED' && data.status != 'done') {
 
                 if (data.dueDate) {
                 //do something

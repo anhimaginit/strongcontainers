@@ -21,10 +21,11 @@ require_once 'inc/init.php';
                         Status:
                         <select style="min-width: 400px;" id="task_select_status" multiple="true">
                            <option value="&nbsp;">&nbsp;</option>
-                           <option value="Open" selected>Open</option>
-                           <option value="In Progress" selected>In Progress</option>
-                           <option value="Close">Close</option>
-                           <option value="Done">Done</option>
+                           <option value="NEEDS TO BE SCHEDULED" selected>NEEDS TO BE SCHEDULED</option>
+                           <option value="SCHEDULED FOR DELIVERY" selected>SCHEDULED FOR DELIVERY</option>
+                           <option value="PICKED UP" selected>PICKED UP – OUT FOR DELIVERY</option>
+                           <option value="DELIVERED" selected>DELIVERED</option>
+                           <option value="CLOSED">CLOSED</option>
                         </select>
                      </span>
                   </div>
@@ -49,9 +50,9 @@ require_once 'inc/init.php';
                            <th>Customer</th>
                            <th>Action Set</th>
                            <th>Status</th>
-                           <th>Due date</th>
-                           <th>Done date</th>
-                           <th>Time</th>
+                           <th>Order</th>
+                           <th>SKU</th>
+                            <th>Delivery date</th>
                         </tr>
                      </thead>
                      <tbody></tbody>

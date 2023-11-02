@@ -148,6 +148,14 @@ Invoice.prototype = {
          if ($('#form_invoice #order_search option:selected').val() != '' &&
             $('#form_invoice #order_search option:selected').val() != 'Select Order' &&
             $('#form_invoice #order_search option:selected').val() != undefined) {
+             //var need_payment = $('#need_payment').val()
+             var need_payment = numeral($('#_balance_order').text()).value()
+             if (need_payment && need_payment != '') {
+                 var value = numeral(need_payment).format('$ 0,0.00');
+                 $('#pay_amount_acct').prop('type', 'text');
+                 $('#pay_amount_acct').val(value);
+             }
+
             $('#acct-pay-modal').modal('show');
             window.what_form = "invoice";
          } else {
@@ -282,7 +290,8 @@ Invoice.prototype = {
                            $('input[name="ID"]').val(__invoice.ID);
                            $('select[name="order_id"]').val(__invoice.order_id);
                            $('input[name="warranty"]').val(__invoice.warranty);
-                           $('input[name="invoiceid"]').val((__invoice.invoiceid).substring(4));
+                            $('input[name="invoiceid"]').val(__invoice.invoiceid);
+                           //$('input[name="invoiceid"]').val((__invoice.invoiceid).substring(4));
                            $('.invoice_file').html(__invoice.invoiceid);
                            $('input[name="paytype"]').val(__invoice.paytype);
                            var _cus_name = __invoice.b_first_name ? __invoice.b_first_name : '';
@@ -299,12 +308,15 @@ Invoice.prototype = {
                               $('select[name="salesperson"]').append('<option value="' + __invoice.salesperson + '" selected>' + _sell_name + '</option>').trigger('change');
                            }
                            $('#invoice_extend_number').text(__invoice.invoiceid.substring(0, 4));
-                           let payment = that.getTotalPaymentAmount();
+                           var payment = __invoice.payment //that.getTotalPaymentAmount();
+
+                           var need_payment = parseFloat(__invoice.order_total) -parseFloat(payment);
                            var _data = {
+                               need_payment:need_payment,
                               payment: payment,
                               balance: __invoice.balance,
-                              order_invoice_payment: __invoice.balance - __invoice.order_balance,
-                              total: __invoice.total,
+                              order_invoice_payment:payment,  //__invoice.balance - __invoice.order_balance,
+                              total: __invoice.order_total,
                               grand_total: __invoice.grand_total,
                               contract_overage: __invoice.contract_overage
                            }
@@ -349,7 +361,7 @@ Invoice.prototype = {
                      }
                   }
                }
-            },
+            }
          })
       }
    },
@@ -383,20 +395,27 @@ Invoice.prototype = {
 
                   $('#tb_product_show tbody').empty();
                   $('#tb_product_show tbody').html(_ProductTable.createTableProduct(null, order.order.order_title));
-
                   //display currency in table footer
                   // order total = products_price + initFee + processing_fee*paymentPeriod - discount_code - discount_product
                   if (!currency) {
+                      var need_payment = 0;
+                      if(order.order.total !=undefined && order.order.total !=null &&
+                          order.order.payment !=undefined && order.order.payment !=null &&
+                          order.order.payment !=''){
+                          need_payment = parseFloat(order.order.total) - parseFloat(order.order.payment);
+                      }
                      currency = {
                         payment: order.order.payment,
                         balance: order.order.balance,
                         total: order.order.total,
                         discount: total_product_price - parseFloat(order.order.total),
                         grand_total: order.order.grand_total,
-                        contract_overage: order.order.contract_overage
+                        contract_overage: order.order.contract_overage,
+                         need_payment:need_payment
                      }
                   }
-                  if (order.order.subscription != [] && order.order.subscription != '' && order.order.subscription != '{}') {
+                  if (order.order.subscription !=null && order.order.subscription !=undefined &&
+                      order.order.subscription != [] && order.order.subscription != '' && order.order.subscription != '{}') {
                      currency.billingCircle = order.order.subscription.billingCircleEvery;
                      currency.processing_fee = order.order.subscription.processingFee;
                      billingDate = order.order.subscription.billingDate;
@@ -435,6 +454,7 @@ Invoice.prototype = {
    },
 
    displayCurrency: function (data) {
+       console.log(data);
       if (data.payment !== undefined) {
          $('#_payment_order').text(numeral(data.payment).format('$ 0,0.00'));
          $('input[name="payment"]').val(numeral(data.payment).value());
@@ -456,6 +476,10 @@ Invoice.prototype = {
          $('#_total_order').text(numeral(data.total).format('$ 0,0.00'));
          $('input[name="total"]').val(numeral(data.total).value());
       }
+       if (data.need_payment !== undefined) {
+           $('#_payment').text(numeral(data.need_payment).format('$ 0,0.00'));
+           $('#need_payment').val(numeral(data.need_payment).value());
+       }
       if (data.processingFee !== undefined) {
          $('#_processing_order').text(numeral(data.processing_fee ? data.processing_fee : 0).format('$ 0,0.00'));
       }
@@ -498,17 +522,17 @@ Invoice.prototype = {
       ignore: [],
       rules: {
          order_id: { required: true, number: true },
-         warranty: { required: true, number: true },
+         //warranty: { required: true, number: true },
          customer: { required: true },
-         salesperson: { required: true },
+        // salesperson: { required: true },
          total: { required: true, number: true },
          // balance: { required: true, number: true, min: 0, max: function () { var _max = parseFloat($('input[name="total"]').val()); return _max; } },
          // payment: { required: true, number: true, min: 0, max: function () { var _max = parseFloat($('input[name="total"]').val()); return _max; } },
          balance: { required: true, number: true },
          payment: { required: true, number: true },
-         invoiceid: { required: true, digits: true, minlength: 1, maxlength: 15 },
+         //invoiceid: { required: true, digits: true, minlength: 1, maxlength: 15 },
       }, messages: {
-         invoiceid: { digits: 'Invoice must be the digits' },
+         //invoiceid: { digits: 'Invoice must be the digits' },
          order_id: { number: 'This field is required' }
       },
       submitHandler: function () {
@@ -551,6 +575,37 @@ Invoice.prototype = {
          }
          delete _formData.salesperson_display;
          delete _formData.payment_type;
+
+          $.ajax({
+              url: _link,
+              type: 'post',
+              data: _formData,
+              success: function (res) {
+                  if (!res.startsWith('{')) {
+                      messageForm('Error! An error occurred. Please try later', false);
+                      return res;
+                  } else {
+                      var tmp = JSON.parse(res);
+                      if (tmp["SAVE"] == 'FAIL') {
+                          messageForm('Error! An error occurred. ' + tmp['ERROR'], false);
+                          return;
+                      } else if (tmp["SAVE"] == 'SUCCESS') {
+                          if (_link == link._invoiceAddNew) {
+                              _href = host2 + "#ajax/invoice-form.php?id=" + tmp.ID;
+                              $('#form_invoice [name=ID]').val(tmp.ID);
+                              responseSuccessForward('You have successfully added the new invoice', true, '#form_invoice #message_form', _href, 'Go to invoice');
+                              return;
+                          } else {
+                              messageForm('You have successfully edited the invoice', true, '#form_invoice #message_form');
+                              $('select[name="customer"]').prop('disabled', true);
+                              $('input[name="invoiceid"]').prop('disabled', true);
+                              return;
+                          }
+                      }
+                  }
+              }
+          })
+          /*
          Invoice.prototype.checkInvoiceID().then(function () {
             $.ajax({
                url: _link,
@@ -582,6 +637,7 @@ Invoice.prototype = {
                }
             })
          }).catch(function (e) { })
+          */
       }
    },
    checkInvoiceID: function () {

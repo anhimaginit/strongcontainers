@@ -1,514 +1,885 @@
-function ACLManagement() { }
+function acl(){
+}
+acl.NAME         = "acl";
+acl.VERSION      = "1.2";
+acl.DESCRIPTION  = "Class acl";
 
-ACLManagement.prototype = {
-    init() {
-        this.createView();
-        this.loadUnitRole();
-        this.bindEvent();
-        return this;
-    },
-    bindEvent() {
-        let that = this;
-        $('.btnSearchACL').click(function () {
-            that[action_search]();
-        });
+acl.prototype.constructor = acl;
+acl.prototype = {
+    init: function(){
+        common_f.prototype.roles("#role_form #unit","#role_form #levels")
+        //////////
+        $("#role_form #levels").change(function(){
+            var unit = $("#role_form #unit").val()
+            var role = $(this).val();
+            common_f.prototype.acl_lists("#role_form #group",unit,role)
+        })
 
-        $(document).unbind('change', '#acl_content .tab-content input[type="checkbox"]:not([disabled]), #acl_content .tab-content select:not([disabled])');
+        $("#role_form #unit").change(function(){
+            var role = $("#role_form #levels").val()
+            var unit = $(this).val();
+            common_f.prototype.acl_lists("#role_form #group",unit,role)
+        })
 
-        $(document).unbind('click', '.btnSubmitTabACL').on('click', '.btnSubmitTabACL', function () {
-            that.saveACL();
-        });
-        this.eventNav();
-        this.eventCheckbox();
-        this.eventSelect();
-
-    },
-    createView() {
-        let that = this;
-
-        $.get('php/getSession.php?data=int_acl&child=acl_rules-PermissionForm', function (res) {
-            if (res && res != '') {
-                window.userPermissionForm = Object.freeze(JSON.parse(res));
+        $("#role_form #group").change(function(){
+            var group_id = $(this).val();
+            $('#role_form #g-id').val(group_id)
+            acl.prototype.getACL_gID(group_id)
+        })
+        $('#role_form').on('click','.view-all',function(){
+            if($(this).is(":checked")){
+                $(this).closest('table').find('tbody .view').prop("checked",true);
+            }else{
+                $(this).closest('table').find('tbody .view').prop("checked",false);
             }
-        });
+        })
 
-        $.get('js/script/acl/acl-navigation.json?update=' + Math.random(), function (res) {
-            window.navigationACL = res;
-        });
-
-        $.get('js/script/acl/acl-key.json?update=' + Math.random(), function (res) {
-            window.aclKEY = Object.freeze(res);
-        });
-
-        $.get('js/script/acl/acl-field.json?update=' + Math.random(), function (res) {
-            window.initialViewJSON = Object.freeze(res);
-            var headTab = [];
-            var contentTab = [];
-
-            for (form in res) {
-                headTab.push(`<li><a href="#${res[form].id}" class="tab_form" data-toggle="tab" rel="tooltip" data-placement="top">${res[form].text}</a></li>`);
-                contentTab.push(that.createTabContent(res[form], form));
-            }
-
-            $('#acl_content .tabbable ul.nav-tabs').html(headTab.join(''));
-            $('#acl_content .tabbable .tab-content').html(contentTab.join(''));
-
-            $('#acl_content .tabbable ul.nav-tabs li:first').addClass('active');
-            $('#acl_content .tabbable .tab-content .tab-pane:first').addClass('in active');
-
-            that.setCanEditDisplay(window.userPermissionForm);
-
-            setTimeout(function () {
-                makeTooltip('If this change is approved, the users will not be able to edit the ACLs in that tab', '#acl_content #PermissionForm [data-form="PermissionForm"][data-attr="PermissionForm"]');
-            }, 2000);
-
-        });
-    },
-    loadUnitRole: function (callback) {
-        $.ajax({
-            url: link._roles,
-            type: 'post',
-            data: $.extend({}, template_data),
-            dataType: 'json',
-            success: function (res) {
-                if (res.ERROR == '') {
-                    var optionsUnit = $('#unit').prop('options');
-                    $('option', $('#unit')).remove();
-                    if (!optionsUnit) return;
-                    optionsUnit[0] = new Option('Select Unit', '', true, true);
-                    res.units.forEach(function (unit) {
-                        return optionsUnit[optionsUnit.length] = new Option(unit, unit, false, false);;
-                    });
-
-                    /** option for level select (role)*/
-                    var optionsLevel = $('#levels').prop('options');
-                    $('option', $('#levels')).remove();
-                    if (!optionsLevel) return;
-                    optionsLevel[0] = new Option('Select Role', '', true, true);
-                    res.roles.forEach(function (unit) {
-                        return optionsLevel[optionsLevel.length] = new Option(unit, unit, false, false);;
-                    });
-                    if (callback) callback();
-                }
-            }
-        });
-    },
-
-    your_role: function () {
-        var _self = this;
-        $.get('php/getSession.php?data=int_acl', function (res) {
-            if (res && res.length > 0) {
-                res = JSON.parse(res);
-                var role = res.acl_rules;
-                let unit = localStorage.getItemValue('actor');
-                let level = localStorage.getItemValue('level');
-                $('#unit').val(unit);
-                $('#levels').val(level);
-
-                window.currentACLEdit = res.acl_rules;
-                window.current_unit = unit;
-                window.current_level = level;
-
-                _self.fillValue(role, 'disabled');
-                $('#acl_content .notify_your_role').remove();
-                $('#acl_content').prepend('<h3 class="bg-primary padding-10 mg-5 notify_your_role">Your ACL • Unit: ' + localStorage.getItemValue('actor') + ' • Role: ' + localStorage.getItemValue('level') + '</h3>');
-            }
-        });
-    },
-
-    loadDefaultACL: function () {
-        let that = this;
-        let unit = $('#unit').val();
-        let level = $('#levels').val();
-        $('#acl_content .notify_your_role').remove();
-        if (unit == '' || level == '' || !unit || !level) {
-            messageForm('Please select unit and level', 'warning');
-            return;
-        }
-        $.ajax({
-            url: link._aclRules_Unit_Level,
-            type: 'post',
-            data: $.extend({
-                unit: unit, level: level
-            }, template_data),
-            dataType: 'json',
-            success: function (res) {
-                if (res && res.acl_rules && res.acl_rules.length > 0) {
-                    window.currentACLEdit = res.acl_rules[0];
-                    window.current_unit = unit;
-                    window.current_level = level;
-                    that.fillValue(res.acl_rules[0]);
-                } else {
-                    that.clearContent();
-                    messageForm('The ACL for unit: ' + unit + ' and role: ' + level + ' is not exists', 'warning');
-                    $('.btnSubmitTabACL').prop('disabled', true).hide();
-                }
-            }
-        });
-    },
-    loadGroupACL: function () {
-        $('#acl_content .notify_your_role').remove();
-        let that = this;
-        let groupOption = $('#group option:selected')
-        let unit = groupOption.data('unit');
-        let level = groupOption.data('level');
-        let group = $('#group').val();
-        if (group == '') {
-            messageForm('Please select group', 'warning');
-            return;
-        }
-        $.ajax({
-            url: link._aclRulesGroupID,
-            type: 'post',
-            data: $.extend({
-                unit: unit, level: level, ID: group
-            }, template_data),
-            dataType: 'json',
-            success: function (res) {
-                if (res.group && res.group.acl && res.group.acl.length > 0) {
-                    window.currentACLEdit = res.group.acl[0];
-                    window.current_unit = unit;
-                    window.current_level = level;
-                    $('#unit').val(unit);
-                    $('#levels').val(level);
-                    that.fillValue(res.group.acl[0]);
-                } else {
-                    that.clearContent();
-                }
-            }
-        });
-    },
-    clearContent: function () {
-        $('#acl_content input:checkbox').prop('checked', false);
-        $('#acl_content select').val('');
-    },
-    createTabContent: function (aclFormTemplate, form) {
-        let _html = [];
-        _html.push(`
-        <div class="tab-pane" id="${aclFormTemplate.id}">
-            <div>
-                <form method="post" class="smart-form">
-                    <table class="table table-bordered table-hover" style="width:100% ">`);
-        function createSelectBox(head = false, attribute) {
-            let text = `${head ? 'All ' : ''}
-            <select class="no-border ${head ? 'w-90' : 'w-100 select-item'} bg-transparent" data-form="${form}" ${head ? ' data-role="selectAllSelect"' : ''}${attribute ? 'data-attr="' + attribute + '"' : ''}>`;
-            text += '<option value="">None</option>'
-            if (attribute && (attribute.startsWith('btn') || attribute == 'viewPrivateNote')) {
-                text += `<option value="show">Show</option>`;
-            } else {
-                for (let key in aclFormTemplate.key) {
-                    text += `<option value="${key}">${aclFormTemplate.key[key]}</option>`;
-                }
-            }
-            text += '</select>';
-            return text;
-        }
-
-        function createCheckbox(head = false, attribute) {
-            let text = ``;
-            if (attribute && (attribute.startsWith('btn') || attribute == 'viewPrivateNote')) {
-                return ` <label class="checkbox">
-                <input type="checkbox"${head ? '' : ' class="select-item"'} data-form="${form}" ${attribute ? 'data-attr="' + attribute + '"' : (head ? 'selectAllSelect' : 'show')} data-role="show">
-                <i></i>&nbsp;${head ? 'All' : ''}
-            </label>`
-            }
-            for (let key in aclFormTemplate.key) {
-                text += `
-                <label class="checkbox">
-                    <input type="checkbox"${head ? '' : ' class="select-item"'} data-form="${form}" data-role="${head ? 'selectAllSelect" data-attr="' + key : key}" ${attribute ? ' data-attr="' + attribute + '"' : ''}>
-                    <i></i>&nbsp;${head ? 'All' : ''}
-                </label>`;
-            }
-            return text;
-        }
-
-        let createBox = aclFormTemplate.type == 'select' ? createSelectBox : createCheckbox;
-        var head = ''
-        _html.push(
-            `<thead>
-                <tr>
-                    ${form == 'Navigation' ? '<th>Title</th><th>Key</th>' : '<th>Attribute</th>'}
-                    <th>${createBox(true)}</th>
-                </tr>
-            </thead>`
-        );
-
-
-        _html.push(`<tbody>`);
-        if (form == 'Navigation') {
-            _html.push(this.createNavigation(window.navigationACL))
-        } else {
-            for (var item in aclFormTemplate.field) {
-                _html.push(`
-                <tr>
-                <td>${aclFormTemplate.field[item]}</td>
-                <td>${createBox(false, item)}</td>
-                </tr>
-                `);
-            }
-        }
-        _html.push(`</tbody>`);
-        _html.push('</table>');
-        _html.push('<footer><button class="btnSubmitTabACL btn btn-primary pull-right" type="button">Save</button></footer>');
-        _html.push('</form>');
-        _html.push('</div>');
-        _html.push('</div>');
-
-        return _html.join('');
-    },
-    createNavigation: function (navigationJSON) {
-        var myResult = '';
-
-        for (var navName in navigationJSON) {
-            myResult += this.createNavItem(navName, navigationJSON[navName], 0, null, navigationJSON, '');
-        }
-        return myResult;
-    },
-    createNavItem: function (navName, navtab, level, parent, navigation, result) {
-        let that = this;
-        if (!navigation[navName]) {
-            navigation[navName] = { show: false };
-        }
-        var children = [];
-        var navSubTxt = '';
-        if (navtab.sub) {
-            navtab.sub.forEach(function (element) {
-                for (var key in element) {
-                    children.push(key);
-                    navSubTxt += that.createNavItem(key, element[key], level + 1, navName, navigation, '');
-                }
-            })
-        }
-        var st = '<tr data-level="' + level + '">' +
-            '<td class="nav-level' + level + '">' + navtab.title + '</td>' +
-            '<td>' + navName + '</td>' +
-            '<td class="text-center"><label class="checkbox"><input type="checkbox" class="nav-attribute select-item" data-form="Navigation" data-attr="' + navName + '" data-role="show"' + (parent ? ' data-parent="' + parent + '"' : '') + (children.length > 0 ? ' data-children="' + children.join(',') + '"' : '') + ' ' + (navigation[navName].show == 'true' || navigation[navName].show == true ? 'checked' : '') + '><i></i></label>' + '</td>' +
-            '</tr>';
-        result += st;
-        result += navSubTxt;
-        return result;
-    },
-    fillValue: function (acl, disabledButton) {
-        this.clearContent();
-        for (let form in acl) {
-            for (let attr in acl[form]) {
-                delete window.currentACLEdit[form][attr]['read'];
-                delete window.currentACLEdit[form][attr]['display'];
-                if (attr.startsWith('btn') || ['viewPrivateNote'].includes(attr)) {
-                    if (acl[form][attr].show == true || acl[form][attr].show == 'true') {
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val('show')
-                    } else {
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val('')
+        $('#role_form').on('click','.view',function(){
+            var that = $(this)
+            if(that.is(":checked")){
+                var view_all = true;
+                that.closest('table').find('tbody .view').each(function(){
+                    if(!$(this).is(":checked")){
+                        view_all = false;
+                        return false;
                     }
-                } else if (['ControlListForm'].includes(form)) {
-                    for (let role in acl[form][attr]) {
-                        if (acl[form][attr][role] == true || acl[form][attr][role] == 'true') {
-                            $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val(role);
+                })
+                that.closest('table').find('.view-all').prop("checked",view_all)
+            }else{
+                that.closest('table').find('.view-all').prop("checked",false)
+            }
+        })
+
+        $('#role_form').on('click','.add-all',function(){
+            if($(this).is(":checked")){
+                $(this).closest('table').find('tbody .add').prop("checked",true);
+            }else{
+                $(this).closest('table').find('tbody .add').prop("checked",false);
+            }
+        })
+
+        $('#role_form').on('click','.add',function(){
+            var that = $(this)
+            if(that.is(":checked")){
+                var add_all = true;
+                that.closest('table').find('tbody .add').each(function(){
+                    if(!$(this).is(":checked")){
+                        add_all = false;
+                        return false;
+                    }
+                })
+                that.closest('table').find('.add-all').prop("checked",add_all)
+            }else{
+                that.closest('table').find('.add-all').prop("checked",false)
+            }
+        })
+
+        $('#role_form').on('click','.edit-all',function(){
+            if($(this).is(":checked")){
+                $(this).closest('table').find('tbody .edit').prop("checked",true);
+            }else{
+                $(this).closest('table').find('tbody .edit').prop("checked",false);
+            }
+        })
+
+        $('#role_form').on('click','.edit',function(){
+            var that = $(this)
+            if(that.is(":checked")){
+                var edit_all = true;
+                that.closest('table').find('tbody .edit').each(function(){
+                    if(!$(this).is(":checked")){
+                        edit_all = false;
+                        return false;
+                    }
+                })
+                that.closest('table').find('.edit-all').prop("checked",edit_all)
+            }else{
+                that.closest('table').find('.edit-all').prop("checked",false)
+            }
+        });
+
+        $('#role_form').on('click','#btn-update-acl',function(){
+            acl.prototype.update_acl()
+        })
+    },
+    /*********************************/
+    getACL_gID:function(g_id){
+        $('#role_form #ul-acl').html("")
+        $('#role_form #body-acl').html("")
+        var _link =link._group_by_id;
+        var _data ={token:_token,group_id:g_id}
+        $.ajax({
+            "async": true,
+            "crossDomain": true,
+            "url": _link,
+            "method": "POST",
+            dataType: 'json',
+            data:_data,
+            //contentType: 'application/json',
+            error : function (status,xhr,error) {
+            },
+            success: function (res) {
+                var data = res.acl;
+                for (let key in data) {
+                    acl.prototype.processACLFields(key,data[key]);
+                }
+
+                //btn check all
+                $("#role_form table.table-acl").each(function(){
+                    var this_table = $(this);
+                    var view_all = true;
+                    var add_all = true;
+                    var edit_all = true;
+                    this_table.find('.view').each(function(){
+                        if(!$(this).is(":checked")){
+                            view_all = false;
+                            return false;
+                        }
+                    });
+                    this_table.find('.add').each(function(){
+                        if(!$(this).is(":checked")){
+                            add_all = false;
+                            return false;
+                        }
+                    });
+                    this_table.find('.edit').each(function(){
+                        if(!$(this).is(":checked")){
+                            edit_all = false;
+                            return false;
+                        }
+                    });
+
+                    this_table.find('.view-all').prop("checked",view_all)
+                    this_table.find('.add-all').prop("checked",add_all)
+                    this_table.find('.edit-all').prop("checked",edit_all)
+                });
+
+                var btn='';
+                if(is_addedit =='true'){
+                    btn='<footer>' +
+                        '<button class="btn btn-danger  f-r btn-sm" id="btn-update-acl">Update</button> ' +
+                        '</footer>'
+                }
+
+                $('#anchor_btn').html(btn)
+            }
+        });
+    },
+    /************************************/
+    processACLFields:function(key,obj){
+        var li='';
+        var div ='';
+        var tr="";
+        var tbody="";
+        var tab='';
+        var active ="";
+        var active_in ="";
+        var isdisable ='';
+        switch(key){
+            case "PermissionForm":
+                active = "active";
+                active_in ="active in";
+                isdisable ='disabled = "disabled"';
+                for(let k_field in obj){
+                    var view = obj[k_field]["show"];
+                    var add = obj[k_field]["add"];
+                    var edit = obj[k_field]["edit"];
+                    tr +='<tr class="tr_acl">' +
+                        '<td >Form '+k_field+'<input class="key" type="hidden" value="'+k_field+'"></td>'+
+                        acl.prototype.td_acl(view,add,edit)+
+                        '</tr>';
+                }
+                break;
+            case "Navigation":
+                tr = acl.prototype.create_obj_nav(obj)
+                break;
+            default:
+                for(let k_field in obj){
+                    var key_name = k_field
+                    if(k_field.indexOf("-")){
+                        key_name =''
+                        var k_field_t = k_field.split("_")
+                        k_field_t.forEach(function(item){
+                            if(item =="id") item =""
+                            key_name = (key_name=='')?item: key_name+" "+item;
+                        })
+
+                    }
+
+                    var view = obj[k_field]["show"];
+                    var add = obj[k_field]["add"];
+                    var edit = obj[k_field]["edit"];
+
+                    tr +='<tr class="tr_acl">' +
+                        '<td class="capitalize-first">'+key_name+'<input class="key" type="hidden" value="'+k_field+'"></td>'+
+                        acl.prototype.td_acl(view,add,edit)+
+                        '</tr>';
+                }
+                break;
+
+        }
+
+        li +='<li class="nav-item '+active+'">'+
+                '<a class="nav-link f_uppercase" data-toggle="tab" href="#'+key+'" role="tab">'+key+'</a>'+
+            '</li>'
+
+        tab ='<div class="tab-pane fade acl '+active_in+'" id="'+key+'" role="tabpanel">' +
+            '<div class="table-responsive-lg col-12">' +
+                '<table class="table table-bordered m-0 t-normal-l table-acl '+key+'">' +
+                    '<thead>'+
+                        '<tr>'+
+                            '<th style="max-width: 300px; vertical-align: middle;font-size: 15px!important" rowspan="2">Filed Name</th>'+
+                            '<th style="font-size: 15px!important">Permission</th>'+
+                        '</tr>'+
+                        '<tr>'+
+                            '<th>' +
+                                '<div class="inline-group">'+
+                                    '<label class="checkbox">' +
+                                        '<input type="checkbox" name="checkbox-inline" class="view-all">' +
+                                        '<i></i>All&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                    '</label>' +
+                                    '<label class="checkbox">' +
+                                        '<input type="checkbox" name="checkbox-inline" class="add-all">' +
+                                        '<i></i>All&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                    '</label>' +
+                                        '<label class="checkbox">' +
+                                        '<input type="checkbox" name="checkbox-inline" class="edit-all">' +
+                                        '<i></i>All' +
+                                    '</label>' +
+                                '</div>' +
+                            '</th>'+
+                        '</tr>'+
+                    '</thead>'+
+            '<tbody>'+
+            tr +
+            '</tbody>' +
+            '</table>'
+
+        $('#role_form #ul-acl').append(li)
+        $('#role_form #body-acl').append(tab)
+
+    },
+    /*******************************************/
+    td_acl:function(view,add,edit){
+        var view_v =(view)?'checked="checked"':'';
+        var add_v =(add)?'checked="checked"':'';
+        var edit_v =(edit)?'checked="checked"':'';
+        var add_div = '<label class="checkbox">' +
+            '<input type="checkbox" name="checkbox-inline" class="add" '+add_v+' >' +
+            '<i></i>Add</label>'
+            '</div>'
+        if(add ==undefined){
+            var add_div = '<label class="checkbox c-disabled">' +
+                '<i></i>Add</label>'
+        }
+        var view_div = '<label class="checkbox">' +
+            '<input type="checkbox" name="checkbox-inline" class="view" '+view_v+' >' +
+            '<i></i>Show</label>'
+        '</div>'
+        if(view ==undefined){
+            var view_div = '<label class="checkbox c-disabled">' +
+                '<i></i>Show</label>'
+        }
+
+        var td =
+            '<td class="v-key">' +
+                '<div class="inline-group">'+
+                    view_div +
+                    add_div +
+                    '<label class="checkbox">' +
+                        '<input type="checkbox" name="checkbox-inline" class="edit" '+edit_v+' >' +
+                        '<i></i>Edit' +
+                    '</label>' +
+                '</div>' +
+                '</td>'
+        return td;
+    },
+    /*******************************************/
+    td_acl_navigation:function(view,add,edit){
+        var view_v =(view)?'checked="checked"':'';
+        var add_v =(add)?'checked="checked"':'';
+        var edit_v =(edit)?'checked="checked"':'';
+
+        var add_div = '<label class="checkbox">' +
+            '<input type="checkbox" name="checkbox-inline" class="add" '+add_v+' >' +
+            '<i></i>Only View</label>'
+        '</div>'
+        if(add ==undefined){
+            var add_div = '<label class="checkbox c-disabled">' +
+                '<i></i>Only View</label>'
+        }
+
+        var view_div = '<label class="checkbox">' +
+            '<input type="checkbox" name="checkbox-inline" class="view" '+view_v+' >' +
+            '<i></i>Show</label>'
+        '</div>'
+        if(view ==undefined){
+            var view_div = '<label class="checkbox c-disabled">' +
+                '<i></i>Show</label>'
+        }
+
+        var edit_div = '<label class="checkbox">' +
+            '<input type="checkbox" name="checkbox-inline" class="view" '+edit_v+' >' +
+            '<i></i>Show</label>'
+        '</div>'
+        if(edit ==undefined){
+            var edit_div = '<label class="checkbox c-disabled">' +
+                '<i></i>Edit</label>'
+        }
+
+        var td =
+            '<td class="v-key">' +
+                '<div class="inline-group">'+
+                    view_div +
+                   // add_div +
+                    //edit_div +
+                 '</div>' +
+            '</td>'
+        return td;
+    },
+    /*******************************************/
+    create_obj_nav:function(nav){
+        var obj ={}
+        obj.administrator={}
+        obj.administrator.sub={}
+        obj.administrator.sub.container_type={}
+        obj.administrator.sub.container_type.sub={}
+        obj.administrator.sub.depot={}
+        obj.administrator.sub.depot.sub={}
+        obj.administrator.sub.group={}
+        obj.administrator.sub.group.sub={}
+        obj.administrator.sub.discount={}
+        obj.administrator.sub.discount.sub={}
+        obj.administrator.sub.rate_shipping={}
+        obj.administrator.sub.rate_shipping.sub={}
+        obj.administrator.sub.rate_container={}
+        obj.administrator.sub.rate_container.sub={}
+        obj.contact={}
+        obj.contact.sub={}
+        obj.company={}
+        obj.company.sub={}
+        obj.product={}
+        obj.product.sub={}
+        obj.order={}
+        obj.order.sub={}
+        //obj.warranty={}
+        //obj.warranty.sub={}
+        obj.invoice={}
+        obj.invoice.sub={}
+        //obj.claim={}
+        //obj.claim.sub={}
+        obj.import={}
+        obj.import.sub={}
+        obj.task={}
+        obj.task.sub={}
+        obj.help={}
+        obj.help.sub={}
+        obj.mail={}
+        obj.mail.sub={}
+        for(let k_field in nav){
+            var show = nav[k_field]["show"];
+            var onlyview = nav[k_field]["onlyview"];
+            var edit = nav[k_field]["edit"];
+           if(k_field=='dashboard' || k_field== 'home' ||
+               k_field== 'profile' || k_field== 'calendar' ){
+               obj[k_field] ={show:show,onlyview:onlyview,edit:edit}
+           }
+
+            //admin addcontainertype
+            if(k_field=='administrator'){
+                obj.administrator.administrator={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='roles'){
+                obj.administrator.sub.roles={show:show,onlyview:onlyview,edit:edit}
+                //if(obj.administrator.sub.roles==undefined) {}
+                //Object.assign(obj.administrator.sub.roles,{show:show,onlyview:onlyview,edit:edit})
+            }
+            if(k_field=='state_manage'){
+                obj.administrator.sub.state_manage={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='group'){
+                obj.administrator.sub.group.group ={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addgroup'){
+                obj.administrator.sub.group.sub.addgroup={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='listgroup'){
+                obj.administrator.sub.group.sub.listgroup={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='billing'){
+                obj.administrator.sub.billing={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='discount'){
+                obj.administrator.sub.discount.discount={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='adddiscount'){
+                obj.administrator.sub.discount.sub.adddiscount={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='discountlist'){
+                obj.administrator.sub.discount.sub.discountlist={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='discountreport'){
+                obj.administrator.sub.discount.sub.discountreport={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='merge'){
+                obj.administrator.sub.merge={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='setting'){
+                obj.administrator.sub.setting={show:show,onlyview:onlyview,edit:edit}
+            }
+
+            if(k_field=='addcontainertype'){
+                obj.administrator.sub.container_type.sub.addcontainertype={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='containertypelist'){
+                obj.administrator.sub.container_type.sub.containertypelist={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='adddepot'){
+                obj.administrator.sub.depot.sub.adddepot={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='adddepot'){
+                obj.administrator.sub.depot.sub.depotlist={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addrateshipping'){
+                obj.administrator.sub.rate_shipping.sub.addrateshipping={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='rateshippinglist'){
+                obj.administrator.sub.rate_shipping.sub.rateshippinglist={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='ratecontainerlist'){
+                obj.administrator.sub.rate_container.sub.ratecontainerlist={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addratecontainer'){
+                obj.administrator.sub.rate_container.sub.addratecontainer={show:show,onlyview:onlyview,edit:edit}
+            }
+            //contact
+            if(k_field=='contact'){
+                obj.contact.contact={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addcontact'){
+                obj.contact.sub.addcontact={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='listcontact'){
+                obj.contact.sub.listcontact={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='reportcontact'){
+                obj.contact.sub.reportcontact={show:show,onlyview:onlyview,edit:edit}
+            }
+            //com
+            if(k_field=='company'){
+                obj.company.company={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addcompany'){
+                obj.company.sub.addcompany={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='listcompany'){
+                obj.company.sub.listcompany={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='reportcompany'){
+                obj.company.sub.reportcompany={show:show,onlyview:onlyview,edit:edit}
+            }
+            //product
+            if(k_field=='product'){
+                obj.product.product={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addproduct'){
+                obj.product.sub.addproduct={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='listproduct'){
+                obj.product.sub.listproduct={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='reportproducts'){
+                obj.product.sub.reportproducts={show:show,onlyview:onlyview,edit:edit}
+            }
+            //order
+            if(k_field=='order'){
+                obj.order.order={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addorder'){
+                obj.order.sub.addorder={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='listorder'){
+                obj.order.sub.listorder={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='reportorder'){
+                obj.order.sub.reportorder={show:show,onlyview:onlyview,edit:edit}
+            }
+            //invoice
+            if(k_field=='invoice'){
+                obj.invoice.invoice={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addinvoice'){
+                obj.invoice.sub.addinvoice={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='listinvoice'){
+                obj.invoice.sub.listinvoice={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='reportinvoice'){
+                obj.invoice.sub.reportinvoice={show:show,onlyview:onlyview,edit:edit}
+            }
+            //help
+           if(k_field=='help'){
+               obj.help.help ={show:show,onlyview:onlyview,edit:edit}
+           }
+            //import
+            if(k_field=='import'){
+                obj.import.import={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='importproduct'){
+                obj.import.sub.importproduct={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='importcontact'){
+                obj.import.sub.importcontact={show:show,onlyview:onlyview,edit:edit}
+            }
+            //task
+            if(k_field=='task'){
+                obj.task.task={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addtask'){
+                obj.task.sub.addtask={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='tasklist'){
+                obj.task.sub.tasklist={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='tasktemplate'){
+                obj.task.sub.tasktemplate={show:show,onlyview:onlyview,edit:edit}
+            }
+            //help
+            if(k_field=='help'){
+                obj.help.help={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='help_page'){
+                obj.help.sub.help_page={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='helpfiles'){
+                obj.help.sub.helpfiles={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='helpcreatecontent'){
+                obj.help.sub.helpcreatecontent={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='issueticket'){
+                obj.help.sub.issueticket={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='ticketlist'){
+                obj.help.sub.ticketlist={show:show,onlyview:onlyview,edit:edit}
+            }
+            //email
+            if(k_field=='mail'){
+                obj.mail.mail={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='drafts'){
+                obj.mail.sub.drafts={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='compose'){
+                obj.mail.sub.compose={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='inbox'){
+                obj.mail.sub.inbox={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='sent'){
+                obj.mail.sub.sent={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='sms_compose'){
+                obj.mail.sub.sms_compose={show:show,onlyview:onlyview,edit:edit}
+            }
+            //warranty
+            /*if(k_field=='warranty'){
+                obj.warranty.task={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='addwarranty'){
+                obj.warranty.sub.addwarranty={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='editwarranty'){
+                obj.warranty.sub.editwarranty={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='listwarranty'){
+                obj.warranty.sub.listwarranty={show:show,onlyview:onlyview,edit:edit}
+            }
+            if(k_field=='reportwarranty'){
+                obj.warranty.sub.reportwarranty={show:show,onlyview:onlyview,edit:edit}
+            }
+            //claim
+             if(k_field=='claim'){
+             obj.claim.task={show:show,onlyview:onlyview,edit:edit}
+             }
+             if(k_field=='addclaim'){
+             obj.claim.sub.addclaim={show:show,onlyview:onlyview,edit:edit}
+             }
+             if(k_field=='claimlimit'){
+             obj.claim.sub.claimlimit={show:show,onlyview:onlyview,edit:edit}
+             }
+             if(k_field=='claimlist'){
+             obj.claim.sub.claimlist={show:show,onlyview:onlyview,edit:edit}
+             }
+             if(k_field=='reportclaim'){
+             obj.claim.sub.reportclaim={show:show,onlyview:onlyview,edit:edit}
+             }
+            */
+            //
+        }
+        //console.log(obj);
+        var tr =''
+        for(let key in obj){
+            if("show" in obj[key]){
+                var show = obj[key]["show"];
+                var onlyview = obj[key]["onlyview"];
+                var edit = obj[key]["edit"];
+                var key_name = key
+                if(key.indexOf("-")){
+                    key_name =''
+                    var k_field_t = key.split("_")
+                    k_field_t.forEach(function(item){
+                        if(item =="id") item =""
+                        key_name = (key_name=='')?item: key_name+" "+item;
+                    })
+
+                }
+                tr +='<tr class="tr_acl">' +
+                    '<td class="capitalize-first bold">'+key_name+'<input class="key" type="hidden" value="'+key+'"></td>'+
+                    acl.prototype.td_acl_navigation(show,onlyview,edit)+
+                '</tr>';
+            }else{
+                if(key !='administrator'){
+                    tr +=  acl.prototype.process_td_navigation(key,obj[key],'bold','','p-l25')
+                }else{
+                    tr +=  acl.prototype.process_td_navigation2(key,obj[key],'bold','','p-l25')
+                }
+            }
+        }
+        return tr;
+    },
+    /*******************************************/
+    process_td_navigation:function(key,obj,class_name,p1,p2){
+        var tr ='';
+        var tr1 =''
+        var tr2 =''
+        for(let key_field in obj){
+            if(key_field !='sub'){
+                var show = obj[key_field]["show"];
+                var onlyview = obj[key_field]["onlyview"];
+                var edit = obj[key_field]["edit"];
+                var key_name = key_field
+                if(key_field.indexOf("-")){
+                    key_name =''
+                    var k_field_t = key_field.split("_")
+                    k_field_t.forEach(function(item){
+                        if(item =="id") item =""
+                        key_name = (key_name=='')?item: key_name+" "+item;
+                    })
+
+                }
+                tr1 +='<tr class="tr_acl">' +
+                    '<td class="capitalize-first '+class_name+' '+p1+'">'+key_name+'<input class="key" type="hidden" value="'+key_field+'"></td>'+
+                    acl.prototype.td_acl_navigation(show,onlyview,edit)+
+                    '</tr>';
+            }else{
+                var obj_sub = obj['sub']
+                for(let key_field in obj_sub){
+                    var show = obj_sub[key_field]["show"];
+                    var onlyview = obj_sub[key_field]["onlyview"];
+                    var edit = obj_sub[key_field]["edit"];
+                    var key_name = key_field
+                    if(key_field.indexOf("-")){
+                        key_name =''
+                        var k_field_t = key_field.split("_")
+                        k_field_t.forEach(function(item){
+                            if(item =="id") item =""
+                            key_name = (key_name=='')?item: key_name+" "+item;
+                        })
+
+                    }
+                    tr2 +='<tr class="tr_acl">' +
+                        '<td class="capitalize-first '+p2+'">'+key_name+'<input class="key" type="hidden" value="'+key_field+'"></td>'+
+                        acl.prototype.td_acl_navigation(show,onlyview,edit)+
+                        '</tr>';
+
+                }
+            }
+        }
+
+        return tr1 + tr2
+    },
+    /*******************************************/
+    process_td_navigation2:function(key,obj,class_name,p1,p2){
+        var tr ='';
+        var tr1 =''
+        var tr2 =''
+        var tr3 =''
+        var tr4 =''
+        for(let key_field in obj){
+            if(key_field !='sub'){
+                var show = obj[key_field]["show"];
+                var onlyview = obj[key_field]["onlyview"];
+                var edit = obj[key_field]["edit"];
+                var key_name = key_field
+                if(key_field.indexOf("-")){
+                    key_name =''
+                    var k_field_t = key_field.split("_")
+                    k_field_t.forEach(function(item){
+                        if(item =="id") item =""
+                        key_name = (key_name=='')?item: key_name+" "+item;
+                    })
+
+                }
+                tr1 +='<tr class="tr_acl">' +
+                    '<td class="capitalize-first '+class_name+' '+p1+'">'+key_name+'<input class="key" type="hidden" value="'+key_field+'"></td>'+
+                    acl.prototype.td_acl_navigation(show,onlyview,edit)+
+                    '</tr>';
+            }else{
+                var obj_sub = obj['sub']
+                for(let key_field in obj_sub){
+                    var obj_sub1 = obj_sub[key_field]
+                    if (key_field in obj_sub1){
+                        for(let key_field1 in obj_sub1){
+                            if ("onlyview" in obj_sub1[key_field1]){
+                                tr3 +=  acl.prototype.process_td_nav_sub1(key_field1,obj_sub1[key_field1],'p-l25','')
+                            }else{
+                                tr4 +=  acl.prototype.process_td_nav_sub2(obj_sub1[key_field1],'p-l50','')
+                            }
+                        }
+                        tr += tr3+tr4
+                        tr3 =''; tr4=''
+                    }else{
+                        if ("onlyview" in obj_sub1){
+                            tr2 +=  acl.prototype.process_td_nav_sub1(key_field,obj_sub1,'p-l25','')
+                        }else{
+                            tr2 +=acl.prototype.process_td_nav_title(key_field,'p-l25','')
+                            tr2 +=acl.prototype.process_td_nav_sub2(obj_sub1["sub"],'p-l50','')
                         }
                     }
-                } else if (window.initialViewJSON[form].type.includes('checkbox')) {
-                    for (let role in acl[form][attr]) {
-                        let checked = acl[form][attr][role] == 'true' || acl[form][attr][role] == true;
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"][data-role="' + role + '"]').prop('checked', checked);
-                    }
-                } else if (window.initialViewJSON[form].type.includes('select')) {
-                    if ((acl[form][attr].add == 'true' || acl[form][attr].add == true) && (acl[form][attr].edit == true || acl[form][attr].edit == 'true')) {
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val('addEdit')
-                    } else if (acl[form][attr].add == 'true' || acl[form][attr].add == true) {
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val('add')
-                    } else if (acl[form][attr].edit == true || acl[form][attr].edit == 'true') {
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val('edit')
-                    } else if (acl[form][attr].show == true || acl[form][attr].show == 'true') {
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val('show');
-                    } else {
-                        $('#' + form + ' [data-form="' + form + '"][data-attr="' + attr + '"]').val('');
-                    }
                 }
             }
         }
 
-        if (disabledButton) {
-            $('.btnSubmitTabACL').hide();
-            $('.btnSubmitTabACL').prop('disabled', true);
-        } else {
-            $('.btnSubmitTabACL').show();
-            $('.btnSubmitTabACL').prop('disabled', false);
-        }
+        return tr1 + tr2 +tr
     },
-    setCanEditDisplay(aclPermission) {
-        $('#acl_content .tabbable .tab-content .notify-nochange').remove();
-        for (var key in window.aclKEY) {
-            if ((aclPermission && aclPermission[key] && (aclPermission[key].edit == true || aclPermission[key].edit == 'true')) || isSystemAdmin()) {
-                $('#acl_content .tabbable .nav-tabs li:has(a[href="#' + key + '"])').removeClass('cannot-edit');
-                $('#acl_content .tabbable .tab-content #' + key + ' select, #acl_content .tabbable .tab-content #' + key + ' input').prop('disabled', false);
-                $('#acl_content .tabbable .tab-content #' + key + ' select, #acl_content .tabbable .tab-content #' + key + ' input').removeClass('input-readonly');
-                $('#acl_content .tabbable .tab-content #' + key + ' .notify-nochange').remove();
-            } else {
-                $('#acl_content .tabbable .nav-tabs li:has(a[href="#' + key + '"])').addClass('cannot-edit');
-                $('#acl_content .tabbable .tab-content #' + key + ' select, #acl_content .tabbable .tab-content #' + key + ' input').prop('disabled', true);
-                $('#acl_content .tabbable .tab-content #' + key + ' select, #acl_content .tabbable .tab-content #' + key + ' input').addClass('input-readonly');
-                $('#acl_content .tabbable .tab-content #' + key).prepend('<h3 class="text-danger notify-nochange"><i class="fa fa-cog"></i> &nbsp;&nbsp;&nbsp;This form can\'t change</h3>')
+    /*****************************************/
+    process_td_nav_sub1:function(key_field,obj,class_name1,class_name2){
+        var show = obj["show"];
+        var onlyview = obj["onlyview"];
+        var edit = obj["edit"];
+        var key_name = key_field
+        if(key_field.indexOf("-")){
+            key_name =''
+            var k_field_t = key_field.split("_")
+            k_field_t.forEach(function(item){
+                if(item =="id") item =""
+                key_name = (key_name=='')?item: key_name+" "+item;
+            })
+
+        }
+        return '<tr class="tr_acl">' +
+            '<td class="capitalize-first '+class_name1+' '+class_name2+'">'+key_name+'<input class="key" type="hidden" value="'+key_field+'"></td>'+
+            acl.prototype.td_acl_navigation(show,onlyview,edit)+
+            '</tr>';
+    },
+    /*****************************************/
+    process_td_nav_sub2:function(obj,class_name1,class_name2){
+        var tr2=''
+        for(let key_field in obj){
+            var show = obj[key_field]["show"];
+            var onlyview = obj[key_field]["onlyview"];
+            var edit = obj[key_field]["edit"];
+            var key_name = key_field
+            if(key_field.indexOf("-")){
+                key_name =''
+                var k_field_t = key_field.split("_")
+                k_field_t.forEach(function(item){
+                    if(item =="id") item =""
+                    key_name = (key_name=='')?item: key_name+" "+item;
+                })
 
             }
+            tr2 +='<tr class="tr_acl">' +
+                '<td class="capitalize-first '+class_name1+' '+class_name2+'">'+key_name+'<input class="key" type="hidden" value="'+key_field+'"></td>'+
+                    acl.prototype.td_acl_navigation(show,onlyview,edit)+
+                '</tr>';
         }
+        return tr2;
     },
-    eventNav: function () {
-        $(document).unbind('change', 'input:checkbox.nav-attribute:not([disabled])')
-        $(document).on('change', 'input:checkbox.nav-attribute:not([disabled])', function () {
-            var child = $(this).data('children');
-            var status = $(this).prop('checked');
-            var parent = $(this).data('parent');
-            if (child != undefined && child != null && status == false) {
-                child.split(',').forEach(function (children) {
-                    $('[data-attr="' + children + '"][data-role=show]').prop('checked', false).change();
-                });
-            }
-            if (parent && status == true) {
-                $('[data-attr="' + parent + '"][data-role=show]').prop('checked', true).change();
-            }
-        });
-    },
-    eventCheckbox: function () {
-        $(document).on('change', '#acl_content .tab-content input[type="checkbox"]:not([disabled])', function () {
-            if (!window.currentACLEdit) {
-                messageForm('Please select unit and level', 'warning');
-                return;
-            }
-            let $this = $(this);
-            let form = $this.data('form'),
-                attr = $this.data('attr'),
-                role = $this.data('role'),
-                status = $this.prop('checked');
-            if (!window.currentACLEdit[form]) window.currentACLEdit[form] = {};
-            if (!window.currentACLEdit[form][attr] && !['selectAllSelect', 'addEdit'].includes(role)) window.currentACLEdit[form][attr] = {};
-            switch (role) {
-                case 'selectAllSelect':
-                    $('#' + form + ' input.select-item[data-form="' + form + '"][data-role="' + attr + '"]').prop('checked', status).trigger('change');
-                    break;
-                default:
-                    window.currentACLEdit[form][attr][role] = status;
-                    break;
+    /*****************************************/
+    process_td_nav_title:function(key_field,class_name1,class_name2){
+        var key_name = key_field
+        if(key_field.indexOf("-")){
+            key_name =''
+            var k_field_t = key_field.split("_")
+            k_field_t.forEach(function(item){
+                if(item =="id") item =""
+                key_name = (key_name=='')?item: key_name+" "+item;
+            })
 
-            }
-        })
+        }
+        return '<tr class="tr_acl">' +
+            '<td class="capitalize-first '+class_name1+' '+class_name2+'">'+key_name+'</td>'+
+             '<td></td>'+
+            '</tr>';
     },
-    eventSelect: function () {
-        $(document).on('change', '#acl_content .tab-content select:not([disabled])', function () {
-            if (!window.currentACLEdit) {
-                messageForm('Please select unit and level', 'warning');
-                return;
-            }
-            let $this = $(this);
-            let form = $this.data('form'),
-                attr = $this.data('attr'),
-                role = $this.data('role') || $this.val(),
-                value = $this.val();
-            if (!window.currentACLEdit[form]) window.currentACLEdit[form] = {};
-            if (!window.currentACLEdit[form][attr] && !['selectAllSelect'].includes(role)) window.currentACLEdit[form][attr] = {};
-            switch (role) {
-                case 'selectAllSelect':
-                    $('#' + form + ' select.select-item[data-form="' + form + '"]').val(value).trigger('change');
-                    $('#' + form + ' select.select-item[data-form="' + form + '"][data-attr="viewPrivateNote"]').val(value == '' ? '' : 'show').trigger('change');
-                    $('#' + form + ' select.select-item[data-form="' + form + '"][data-attr*="btn"]').val(value == '' ? '' : 'show').trigger('change');
-                    break;
-                case 'add':
-                    window.currentACLEdit[form][attr]['add'] = true;
-                    window.currentACLEdit[form][attr]['edit'] = false;
-                    window.currentACLEdit[form][attr]['show'] = true;
-                    break;
-                case 'edit':
-                    window.currentACLEdit[form][attr]['add'] = false;
-                    window.currentACLEdit[form][attr]['edit'] = true;
-                    window.currentACLEdit[form][attr]['show'] = true;
-                    break;
-                case 'show':
-                    window.currentACLEdit[form][attr]['add'] = false;
-                    window.currentACLEdit[form][attr]['edit'] = false;
-                    window.currentACLEdit[form][attr]['show'] = true;
-                    break;
-                case 'addEdit':
-                    window.currentACLEdit[form][attr]['add'] = true;
-                    window.currentACLEdit[form][attr]['edit'] = true;
-                    window.currentACLEdit[form][attr]['show'] = true;
-                    break;
-                case '':
-                    window.currentACLEdit[form][attr]['add'] = false;
-                    window.currentACLEdit[form][attr]['edit'] = false;
-                    window.currentACLEdit[form][attr]['show'] = false;
-                    break;
-                default:
-                    if (form == 'ControlListForm') {
-                        window.currentACLEdit[form][attr] = {};
-                        window.currentACLEdit[form][attr][value] = true;
-                    } else {
-                        window.currentACLEdit[form][attr][value] = true;
+    /************************************************/
+    update_acl:function(){
+        var acl = {};
+        var acl_form ={};
+        $("#role_form table.table-acl").each(function(){
+            acl_form ={}
+            var key = $(this).closest('.tab-pane').attr("id")
+            var $me = $(this)
+            $me.find('tbody tr').each(function(){
+                var key_field = $(this).find('.key').val();
+                if(key_field !=undefined){
+                    var view =$(this).find('.view').is(":checked");
+                    var add =$(this).find('.add').is(":checked");
+                    var edit =$(this).find('.edit').is(":checked");
+                    if(key=="PermissionForm"){
+                        acl_form[key_field] = {edit:edit}
+                    }else if(key=="Navigation"){
+                        acl_form[key_field] = {show:view,onlyview:false}
+                    }else{
+                        acl_form[key_field] = {show:view,add:add,edit:edit}
                     }
+                }
+            });
 
-            }
+            acl[key] =acl_form;
         })
-    },
-
-    saveACL: function () {
-        if (!window.currentACLEdit) {
-            messageForm('Please select unit and level', 'warning');
-            return;
-        }
-
-        var _myData = {
-            token: localStorage.getItemValue('token'),
-            unit: window.current_unit,
-            level: window.current_level,
+        //console.log(acl["TaskForm"])
+        //return
+        var _link =link._acl_update;
+        var _data ={token: localStorage.getItemValue('token'),
             jwt: localStorage.getItemValue('jwt'),
             private_key: localStorage.getItemValue('userID'),
-            acl_rules: JSON.stringify([window.currentACLEdit]),
-        };
-
-        if ($('#group')[0]) {
-            _myData.ID = $('#group').val();
-            if (!_myData.ID || _myData.ID == '') {
-                messageForm('Please select group', 'warning');
-                return;
-            }
+            acl:acl,
+            g_id:$('#role_form #g-id').val(),
         }
 
-        // console.log(JSON.stringify(_myData));
-
         $.ajax({
-            url: action_form,
-            type: 'post',
+            "async": true,
+            "crossDomain": true,
+            "url": _link,
+            "method": "POST",
             dataType: 'json',
-            data: _myData,
+            data:_data,
+            //contentType: 'application/json',
+            error : function (status,xhr,error) {
+            },
             success: function (res) {
-                if (res.ERROR == '') {
-                    if (_myData.ID && _myData.ID != '') {
-                        messageForm('You have successfully update rule for ' + $('#group option:selected').text(), true);
-                    } else {
-                        messageForm('You have successfully update rule for ' + _myData.unit + ' ' + _myData.level, true);
-                    }
-                } else {
-                    messageForm('Error! An error occurred. ' + res.ERROR, false);
+                if(res.Update ==true){
+                    $("#modal-success").modal("show")
+                    setTimeout(function(){
+                        $("#modal-success").modal("hide")
+                    },2000)
+                }else{
+                    $("#modal-error #err-message").text(res.ERROR)
+                    $("#modal-error").modal("show")
+                    setTimeout(function(){
+                        $("#modal-error").modal("hide")
+                    },2000)
                 }
             }
-        })
-
+        });
     }
 
 }
 
-var acl_manage = new ACLManagement().init();
-
-// "contactlist" : "Contact List",
-// "contactreport": "Contact Report",
-// "productlist" : "Product List",
-// "productreport": "Product Report",
-// "companylist" : "Company List",
-// "companyreport" : "Company Report",
-// "warrantylist" : "Warranty List",
-// "warrantyreport": "Warranty Report",
-// "invoicelist" : "Invoice List",
-// "invoicereport" : "Invoice Report",
-// "claimlist" : "Claim List",
-// "claimreport" : "Claim Report",
-// "tasklist" : "Task List",
-// "helpdesklist": "Help Desk List",
-// "grouplist": "Group List"
+var acl1 = new acl();
+$(function(){
+    acl1.init();
+});

@@ -27,7 +27,7 @@ payacct.prototype = {
             lang: 'en',
         });
 
-        $(" #pay_amount_acct").keypress(function (e) {
+        $("#pay_amount_acct").keypress(function (e) {
             var str1 = $(this).val();
             var ch = (str1.split(".").length - 1);
             var length = str1.length;
