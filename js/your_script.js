@@ -32,7 +32,7 @@ if (document.location.href.includes('localhost/')) {
     host3 = 'http://localhost/crm/#ajax/';
     // debugState = true;
 } else if (document.location.href.includes('strongcontainers')) {
-    host = 'https://api.salescontrolcenter.com/';
+    host = 'http://strongcontainers.net/';
     host2 = 'http://strongcontainers.net/';
     host3 = 'http://strongcontainers.net/#ajax/';
 }
