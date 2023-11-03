@@ -31,7 +31,12 @@ if (document.location.href.includes('localhost/')) {
     host2 = 'http://localhost/crm/';
     host3 = 'http://localhost/crm/#ajax/';
     // debugState = true;
-} else if (document.location.href.includes('salescontrolcenter')) {
+} else if (document.location.href.includes('strongcontainers')) {
+    host = 'https://api.salescontrolcenter.com/';
+    host2 = 'http://strongcontainers.net/';
+    host3 = 'http://strongcontainers.net/#ajax/';
+}
+else if (document.location.href.includes('salescontrolcenter')) {
     host = 'https://api.salescontrolcenter.com/';
     host2 = 'https://salescontrolcenter.com/';
     host3 = 'https://salescontrolcenter.com/#ajax/';
