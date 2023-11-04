@@ -31,10 +31,10 @@ if (document.location.href.includes('localhost/')) {
     host2 = 'http://localhost/crm/';
     host3 = 'http://localhost/crm/#ajax/';
     // debugState = true;
-} else if (document.location.href.includes('strongcontainers')) {
+} else if (document.location.href.includes('strongcontainers.net')) {
     host = 'https://api.salescontrolcenter.com/';
-    host2 = 'https://strongcontainers.net/';
-    host3 = 'https://strongcontainers.net/#ajax/';
+    host2 = 'http://strongcontainers.net/';
+    host3 = 'http://strongcontainers.net/#ajax/';
 }
 else if (document.location.href.includes('salescontrolcenter')) {
     host = 'https://api.salescontrolcenter.com/';
