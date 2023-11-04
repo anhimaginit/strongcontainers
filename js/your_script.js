@@ -33,8 +33,8 @@ if (document.location.href.includes('localhost/')) {
     // debugState = true;
 } else if (document.location.href.includes('strongcontainers')) {
     host = 'https://api.salescontrolcenter.com/';
-    host2 = 'http://strongcontainers.net/';
-    host3 = 'http://strongcontainers.net/#ajax/';
+    host2 = 'https://strongcontainers.net/';
+    host3 = 'https://strongcontainers.net/#ajax/';
 }
 else if (document.location.href.includes('salescontrolcenter')) {
     host = 'https://api.salescontrolcenter.com/';
