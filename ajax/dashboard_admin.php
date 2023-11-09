@@ -97,6 +97,7 @@
     </div>
 
     <fieldset class="fs m-t10 m-b25 order-content no-task" style="display:none">
+        <input type="hidden" class="status-filter" value="">
         <legend>NEW ORDER</legend>
         <section>
             <div class="row m-b5">
@@ -162,6 +163,7 @@
     </fieldset>
 
     <fieldset class="fs m-t10 m-b25 order-content task-open">
+        <input type="hidden" class="status-filter" value="NEEDS TO BE SCHEDULED">
         <legend>NEEDS TO BE SCHEDULED</legend>
         <div class="row m-b5">
             <div class="col col-2">From date</div>
@@ -193,7 +195,7 @@
                 <button class="btn btn-sm btn-default btn-pdf">PDF export </button>
             </div>-->
             <div class="col col-2">
-                <button class="btn btn-sm btn-primary btn-search-open">Search </button>
+                <button class="btn btn-sm btn-primary btn-search-open btn-search">Search </button>
             </div>
         </div>
         <div class="table-responsive-lg col-12">
@@ -224,6 +226,7 @@
     </fieldset>
 
     <fieldset class="fs m-t10 m-b25 order-content task-progress">
+        <input type="hidden" class="status-filter" value="SCHEDULED FOR DELIVERY">
         <legend>SCHEDULED FOR DELIVERY</legend>
         <div class="row m-b5">
             <div class="col col-2">From date</div>
@@ -255,7 +258,7 @@
                 <button class="btn btn-sm btn-default btn-pdf">PDF export </button>
             </div>-->
             <div class="col col-2">
-                <button class="btn btn-sm btn-primary btn-search-progress">Search </button>
+                <button class="btn btn-sm btn-primary btn-search-progress btn-search">Search </button>
             </div>
         </div>
         <div class="table-responsive-lg col-12">
@@ -286,6 +289,7 @@
     </fieldset>
 
     <fieldset class="fs m-t10 m-b25 order-content task-pickup">
+        <input type="hidden" class="status-filter" value="PICKED UP">
         <legend>PICKED UP – OUT FOR DELIVERY</legend>
         <div class="row m-b5">
             <div class="col col-2">From date</div>
@@ -317,7 +321,7 @@
                 <button class="btn btn-sm btn-default btn-pdf">PDF export </button>
             </div>-->
             <div class="col col-2">
-                <button class="btn btn-sm btn-primary btn-search-pickup">Search </button>
+                <button class="btn btn-sm btn-primary btn-search-pickup btn-search">Search </button>
             </div>
         </div>
         <div class="table-responsive-lg col-12">
@@ -348,6 +352,7 @@
     </fieldset>
 
     <fieldset class="fs m-t10 m-b25 order-content task-delivery" style="display:none">
+        <input type="hidden" class="status-filter" value="DELIVERED">
         <legend>DELIVERY</legend>
         <div class="row m-b5">
             <div class="col col-2">From date</div>
@@ -379,7 +384,7 @@
                 <button class="btn btn-sm btn-default btn-pdf">PDF export </button>
             </div>-->
             <div class="col col-2">
-                <button class="btn btn-sm btn-primary btn-search-delivery">Search </button>
+                <button class="btn btn-sm btn-primary btn-search-delivery btn-search">Search </button>
             </div>
         </div>
         <div class="table-responsive-lg col-12">
@@ -410,6 +415,7 @@
     </fieldset>
 
     <fieldset class="fs m-t10 m-b25 order-content task-close" style="display:none">
+        <input type="hidden" class="status-filter" value="CLOSED">
         <legend>CLOSED</legend>
         <div class="row m-b5">
             <div class="col col-2">From date</div>
@@ -442,7 +448,7 @@
                 <button class="btn btn-sm btn-default btn-pdf">PDF export </button>
             </div>-->
             <div class="col col-2">
-                <button class="btn btn-sm btn-primary btn-search-close">Search </button>
+                <button class="btn btn-sm btn-primary btn-search-close btn-search">Search </button>
             </div>
         </div>
         <div class="table-responsive-lg col-12">

@@ -32,7 +32,7 @@ if (document.location.href.includes('localhost/')) {
     host3 = 'http://localhost/crm/#ajax/';
     // debugState = true;
 } else if (document.location.href.includes('strongcontainers.net')) {
-    host = 'https://api.salescontrolcenter.com/';
+    host = 'http://api.strongcontainers.net/';
     host2 = 'http://strongcontainers.net/';
     host3 = 'http://strongcontainers.net/#ajax/';
 }
@@ -436,6 +436,8 @@ var link = {
     _payment_task: host +'_payment_task.php',
     /*******************************************/
     update_session :  host2 +'php/update_session.php',
+    order_report :  host2 +'php/order_report.php',
+    delete_file :  host2 +'php/delete_file.php',
 };
 
 var _linkSelect = {
@@ -992,11 +994,15 @@ var order_select2_el =function(element,link,callback){
         }
     }).change(function(){
            if(element =='#assign_order'){
-               var $temp = $(this).find(":selected").attr('sku_list').split(",")
                var option ='<option value="">Select SKU</option>';
-               $temp.forEach(function(item){
-                   option +='<option value="'+item+'">'+item+'</option>'
-               })
+               //console.log($(this).find(":selected").attr('sku_list'))
+               if($(this).find(":selected").attr('sku_list') !=undefined){
+                   var $temp = $(this).find(":selected").attr('sku_list').split(",")
+                   $temp.forEach(function(item){
+                       option +='<option value="'+item+'">'+item+'</option>'
+                   })
+               }
+
                $('#assign_driver_id').prop("disabled",false);
                $('#product_sku').prop("disabled",false);
                $('#product_sku').html(option);

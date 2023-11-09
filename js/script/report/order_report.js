@@ -25,13 +25,44 @@ order_report.prototype = {
         });
 
         $('#order-report .btn-search').unbind('click').bind('click',function(){
+            var closest = $(this).closest('.order-content')
+            var from_date = closest.find('.from-date').val()
+            var to_date = closest.find('.to-date').val()
+            var text_search = closest.find('.text-search').val()
+            var status = closest.find('.status-filter').val()
+            var line_num = closest.find('.line-nuber').val()
+
+            var paginator_el =''
+            var tbl_el =''
+            if(status =='NEEDS TO BE SCHEDULED'){
+                paginator_el ='#pagination_tbl-order-open'
+                tbl_el = '#tbl-order-open tbody'
+            }else if(status =='SCHEDULED FOR DELIVERY'){
+                paginator_el ='#pagination_tbl-order-progress'
+                tbl_el = '#tbl-order-progress tbody'
+            }else if(status =='PICKED UP'){
+                paginator_el ='#pagination_tbl-order-pickup'
+                tbl_el = '#tbl-order-pickup tbody'
+            }else if(status =='DELIVERED'){
+                paginator_el ='#pagination_tbl-order-delivery'
+                tbl_el = '#tbl-order-delivery tbody'
+            }else if(status =='CLOSED'){
+                paginator_el ='#pagination_tbl-order-close'
+                tbl_el = '#tbl-order-close tbody'
+            }else{
+                paginator_el ='#pagination_tbl-order'
+                tbl_el = '#tbl-order tbody'
+            }
+            order_report.prototype.get_order(from_date,to_date,status,line_num,text_search,paginator_el,tbl_el);
+        });
+        /*
+        $('#order-report .btn-search').unbind('click').bind('click',function(){
             var from_date = $(this).closest('.search').find('.from-date').val()
             var to_date = $(this).closest('.search').find('.to-date').val()
             var text_search = $(this).closest('.search').find('.text-search').val()
             var line_num = $(this).closest('.search').find('.line-nuber').val()
             order_report.prototype.get_order(from_date,to_date,'',line_num,text_search,'#pagination_tbl-order','#tbl-order tbody');
         });
-
         $('#order-report .btn-search-open').unbind('click').bind('click',function(){
             var from_date = $(this).closest('.search').find('.from-date').val()
             var to_date = $(this).closest('.search').find('.to-date').val()
@@ -67,7 +98,7 @@ order_report.prototype = {
             var line_num = $(this).closest('.search').find('.line-nuber').val()
             order_report.prototype.get_order(from_date,to_date,'CLOSED',line_num,text_search,'#pagination_tbl-order-close','#tbl-order-close tbody');
         });
-
+        */
         $('#order-contain').on('click','.no-status',function(){
             var $me = $(this)
             if($(this).is(":checked")){
@@ -143,13 +174,23 @@ order_report.prototype = {
         $('#order-contain').on('click','.add-task',function(){
             //var $me = $(this);
             order_report.prototype.at_row = $(this);
+            order_report.prototype.reset_task();
            $('#task-modal').modal("show")
         });
 
         $('#close-modal-task').unbind('click').bind('click',function(){
             $('.modal').modal('hide');
             $('#TaskForm').trigger('reset');
-        })
+        });
+
+        $('#order-report .btn-excell').unbind('click').bind('click',function(){
+            var closest = $(this).closest('.order-content')
+            var from_date = closest.find('.from-date').val()
+            var to_date = closest.find('.to-date').val()
+            var text_search = closest.find('.text-search').val()
+            var status = closest.find('.status-filter').val()
+            order_report.prototype.down_load_report(from_date,to_date,text_search,status);
+        });
 
     },
     /***********************************/
@@ -330,7 +371,8 @@ order_report.prototype = {
                     '</a>'
             }
 
-            var cost = parseFloat(item.container_cost) * parseFloat(item.rate_cost)
+           // var cost = parseFloat(item.container_cost) * parseFloat(item.rate_cost)
+            var cost = parseFloat(item.container_cost)
             cost = numeral(cost).format('$ 0,0.00')
             var total = numeral(item.total).format('$ 0,0.00')
              total ='<a class="'+color+'" target="_blank" href="#ajax/invoice-form.php?id='+item.inv_id+'">'+total+'</a>'
@@ -445,6 +487,38 @@ order_report.prototype = {
             }
         });
     },
+    /**********************************/
+    down_load_report:function(from_date,to_date,text_search,status){
+        $.ajax({
+            async: false,
+            url: link.order_report,
+            type: 'post',
+            data: {token:_token,from_date:from_date,to_date:to_date,
+                text_search:text_search,status:status},
+            dataType: 'json',
+            success: function (res) {
+                var url_link = document.createElement('a');
+                url_link.href = res.url_download_file;
+                url_link.download = res.filename;
+                //a.dispatchEvent(new MouseEvent('click'));
+                document.body.appendChild(url_link);
+                url_link.click();
+                url_link.parentNode.removeChild(url_link);
+
+                //remove
+                $.ajax({
+                    url: link.delete_file,
+                    type: 'post',
+                    data: {filename:res.filename},
+                    success: function (res1) {
+
+                    }
+                });
+                /////
+            }
+        });
+
+    },
     /***********************************/
     delete_row:function(){
         if(order_report.prototype.at_row !=''){
@@ -458,6 +532,15 @@ order_report.prototype = {
             $('#order-contain .task-open').find('.to-date').val("")
             $('#order-contain .task-open').find('.to-date').val("10")
         }
+    },
+    /***********************************/
+    reset_task:function(){
+        $("input[name=deliverydate]").val('')
+        $("input[name=deliverytime]").val('')
+        $("input[name=actionset]").val('order')
+        $("input[name=status]").val('NEEDS TO BE SCHEDULED')
+        $('#assign_order').val('').trigger("change");
+        $('#assign_driver_id').val('').trigger("change");
     }
     /***********************************/
 }
