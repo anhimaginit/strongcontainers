@@ -24,8 +24,8 @@
                     <input type="radio" class="acct_payment_type" name="pay_type" value="OnAcct">
                     <i></i>On Account</label>
                 <label class="radio">
-                    <input type="radio" class="acct_payment_type" name="pay_type" value="CC">
-                    <i></i>CC</label>
+                    <input type="radio" class="acct_payment_type" name="pay_type" value="COD">
+                    <i></i>COD</label>
             </div>
         </section>
     </fieldset>

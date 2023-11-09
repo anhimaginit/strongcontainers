@@ -20,8 +20,8 @@
                     <input type="radio" class="radio-pay_type" name="pay_type" value="Check">
                     <i></i>Check</label>
                 <label class="radio">
-                    <input type="radio" class="radio-pay_type" name="pay_type" value="CC">
-                    <i></i>CC</label>
+                    <input type="radio" class="radio-pay_type" name="pay_type" value="COD">
+                    <i></i>COD</label>
             </div>
         </section>
     </fieldset>
