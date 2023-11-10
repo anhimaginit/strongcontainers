@@ -6,44 +6,22 @@ use \SmartUI\Components\SmartForm;
 require_once 'inc/init.php';
 require_once '../php/link.php';
 $_authenticate->checkFormPermission($product_form);
-$productEdit_hub_id ='';
-$productEdit_container_type_id ='';
+
 $productEdit = [];
 $product_operation = 'add';
 $img_photo = './img/images.png';
 if (hasIdParam() && strrpos($_SERVER['REQUEST_URI'], 'product-form') > 0) {
     $productEdit = HTTPMethod::httpPost($link['_productGetById'], ['ID' => getID(), 'token' => $_SESSION['token']])[0];
-    $productEdit_hub_id =$productEdit->depot_id;
-    $productEdit_container_type_id =  $productEdit->container_type_id;
+
+
     $product_operation = 'edit';
     if(isset($productEdit->prod_photo) && $productEdit->prod_photo!=null && startsWith($productEdit->prod_photo, '/photo') || startsWith($productEdit->prod_photo, 'http')){
         $img_photo =  $productEdit->prod_photo;
     }
 }
 
-$depotst = HTTPMethod::httpPost1($link['_depots'], ['token' => $_SESSION['token']]);
-$depotst_option = '<option value=""></option>';
-//print_r($depotst); die();
 
-if(count($depotst) >0){
-    foreach($depotst as $item){
-        $selected = '';
-        if($item["depot_id"] == $productEdit_hub_id) $selected = 'selected = "selected"';
-        $depotst_option .='<option value="'.$item["depot_id"].'" '.$selected.'>'.$item["depot_name"].'</option>';
-    }
-}
 
-$_container_type = HTTPMethod::httpPost1($link['_container_type'], ['token' => $_SESSION['token']]);
-$_container_type_option = '<option value=""></option>';
-//echo "<pre>";print_r($link['_container_type']) ;echo "</pre>";
-//print_r($_container_type); die();
-if(count($_container_type) >0){
-    foreach($_container_type as $item){
-        $selected = '';
-        if($item["container_type_id"] == $productEdit_container_type_id) $selected = 'selected = "selected"';
-        $_container_type_option .='<option value="'.$item["container_type_id"].'" '.$selected.'>'.$item["container_type_name"].'</option>';
-    }
-}
 ?>
 <section id="widget-grid" class="">
     <?php
@@ -67,13 +45,14 @@ if(count($_container_type) >0){
         SmartForm::print_field('SKU', SmartForm::FORM_FIELD_INPUT,
             array(
                 'label' => 'SKU',
-                'class' => '',
+                'class' => 'sku-product',
                 'value' => (isset($productEdit->SKU) ? $productEdit->SKU : ''),
                 'attr' => array(hasPermission($product_form, 'SKU', $product_operation) ? '' : 'readonly="true"'),
                 'properties' => array(
                     'maxlength="20"'
                 )
             ), 12, true, hasPermission($product_form, 'SKU', 'show')) .
+            '<div class="col col-12 dropdown-p" tabindex="-1"> </div>'.
         SmartForm::print_field('prod_desc', SmartForm::FORM_FIELD_TEXTAREA,
             array(
                 'label' => 'Description',
@@ -106,23 +85,7 @@ if(count($_container_type) >0){
             <div class="col col-lg-12 col-12"><img src="' . $img_photo . '" class="img img-responsive" id="image-preview" style="width: auto; max-height:230px;"></div>
         ' : '').'</section>
     </div>
-    <div class="row">
-        <section class="col col-6">
-            <label class="label">Depot</label>
-            <label class="select">
-                <select name="depot_id">'.$depotst_option.'
-                 </select><i></i>
-            </label>
-        </section>
-        <section class="col col-6">
-            <label class="label">Container type</label>
-            <label class="select">
-                <select name="container_type_id">'.$_container_type_option.'
-                 </select><i></i>
-            </label>
-        </section>
 
-    </div>
 
         <div class="row">' .
         SmartForm::print_field(

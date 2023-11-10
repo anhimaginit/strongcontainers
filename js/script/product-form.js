@@ -60,11 +60,7 @@ Product.prototype = {
                     var html = '<option value="">Select Product class</option>';
                     Product.prototype._listProdClass.forEach(function (_pclass) {
                         Product.prototype._listClass.push(_pclass.prodClass_name)
-                        if(_pclass.prodClass_name == 'Container') {
-                            html += '<option value="' + _pclass.prodClass_name + '" selected=true>' + _pclass.prodClass_name + '</option>';
-                        } else {
-                            html += '<option value="' + _pclass.prodClass_name + '">' + _pclass.prodClass_name + '</option>';
-                        }
+                        html += '<option value="' + _pclass.prodClass_name + '">' + _pclass.prodClass_name + '</option>';
                     });
                     $('select[name="prod_class"]').html(html);
                     resolve(true);
@@ -163,18 +159,10 @@ Product.prototype = {
 
         $('select[name="prod_class"]').change(function () {
             _vali.element('input[name="prod_price"]');
+        });
 
-            if ($('select[name ="prod_class"]').val() != "Container") {
-                $('select[name ="depot_id"]').prop("disabled", true);
-            } else {
-                $('select[name ="depot_id"]').prop("disabled", false);
-
-            }
-            if ($('select[name ="prod_class"]').val() != "Container") {
-                $('select[name ="container_type_id"]').prop("disabled", true);
-            } else {
-                $('select[name ="container_type_id"]').prop("disabled", false);
-            }
+        $('#product_form .sku-product').unbind('click').bind('click',function(){
+            Product.prototype.get_valid_sku();
         });
 
     },
@@ -211,8 +199,7 @@ Product.prototype = {
             prod_desc_short: { maxlength: 400 },
             prod_type: { required: true },
             prod_class: { required: true },
-            depot_id: { required: $('select[name ="prod_class"]').val() != "Container" },
-            container_type_id: { required: $('select[name ="prod_class"]').val() != "Container" },
+
             // prod_cost: { min: function () { if ($('select[name="prod_class"]').val() == 'Discount') { return Number.MIN_SAFE_INTEGER; } else { return 0; } }},
             // prod_price: { min: function () { if ($('select[name="prod_class"]').val() == 'Discount') { return Number.MIN_SAFE_INTEGER; } else { return 0; } }},
             prod_weight: { min: 0, number: true },
@@ -325,7 +312,7 @@ Product.prototype = {
             return true;
         }
     },
-
+    /****************************************/
     checkProductType: function (prod_type) {
         if (Product.prototype._listType.indexOf(prod_type) == -1) {
             $('select[name="prod_type"]').addClass('state-error');
@@ -338,6 +325,46 @@ Product.prototype = {
             return true;
         }
     },
+    /**************************************/
+    get_valid_sku:function(){
+        var _formData = {
+            token: localStorage.getItemValue('token')
+        }
+        var _link =link._product_sku;
+        $.ajax({
+            "async": true,
+            "crossDomain": true,
+            "url": _link,
+            "method": "POST",
+            dataType: 'json',
+            data:_formData,
+            error : function (status,xhr,error) {
+            },
+            success: function (res){ //valid-sku
+                if(res.length >0){
+                    var li ='';
+                    res.forEach(function(item){
+                        li +='<li class="sku-select">'+item.container_sku+'</li>'
+                    })
+                    var ul = '<ul class="dropdown-content-ch" id="valid-sku">' + li+'</ul>'
+                    $('#product_form .dropdown-p').html(ul)
+                    $('#product_form .dropdown-content-ch').addClass('show-dropdown');
+
+                    $('#product_form .sku-select').unbind('click').bind('click',function(){
+                        var op_slected = $(this).text();
+                        $('#product_form .sku-product').val(op_slected)
+                        $('#product_form .dropdown-content-ch').removeClass('show-dropdown');
+
+                    });
+                    $(document).click(function () {
+                        $('#product_form .dropdown-content-ch').removeClass('show-dropdown');
+                    });
+                    /*$("#product_form .dropdown-p").focusout(function () {
+                    });*/
+                }
+            }
+        });
+    }
 }
 
 var _Product = new Product();
