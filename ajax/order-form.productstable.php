@@ -10,7 +10,8 @@
          <th style="width:80px;" class="text-right">Price</th>
          <th colspan="2" class="text-right">Discount</th>
          <th style="width:80px;" class="text-right">Line Total</th>
-         <th style="width:70px;"></th>
+         <th style="width:50px;"></th>
+
       </tr>
    </thead>
    <tbody></tbody>
@@ -18,8 +19,9 @@
       <tr>
          <td colspan="3" id="notify_order"></td>
          <td colspan="4" class="text-right bold">
-            <div class="padding-5">Product total:</div>
-            <div class="padding-5">Discount:</div>
+            <div class="padding-5" >Product total:</div>
+            <div class="padding-5" style="display: none">Product discount:</div>
+             <div class="padding-5" id="discount-code-text">Discount code:</div>
              <!--<div class="padding-5">Discount code:</div>
              <div class="padding-5">Initial Fee:</div>
              <div class="padding-5">Processing Fee:</div>
@@ -33,7 +35,8 @@
          </td>
          <td class="text-right bold">
             <div class="text-right" style="padding-top:5px; padding-bottom:5px;" id="_total_table">$ 0.00</div>
-            <div class="text-right" style="padding-top:5px; padding-bottom:5px;" id="_discount">$ 0.00</div>
+            <div class="text-right" style="padding-top:5px; padding-bottom:5px; display:none" id="_discount">$ 0.00</div>
+             <div class="text-right" style="padding-top:5px; padding-bottom:5px;" id="discount_code">$ 0.00</div>
              <!--<div class="text-right" style="padding-top:5px; padding-bottom:5px;" id="_discount_code">$ 0.00</div>
              <div class="text-right" style="padding-top:5px; padding-bottom:5px;" id="_init_fee">$ 0.00</div>
              <div class="text-right" style="padding-top:5px; padding-bottom:5px;" id="_processing_fee">$ 0.00</div>

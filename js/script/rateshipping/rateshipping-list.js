@@ -114,13 +114,7 @@ RateShippingList.prototype = {
             return data.rate_mile ? data.rate_mile : "";
           },
           searchable: true,
-        },
-        {
-          data: function (data) {
-            return data.rate_cost ? data.rate_cost + " $" : "";
-          },
-          searchable: true,
-        },
+        }
       ],
       createdRow: function (row, data, dataIndex) {
         // if(!['Affiliate'].includes(department)){

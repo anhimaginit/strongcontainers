@@ -22,8 +22,18 @@ $text_search  = '';
 if(isset($_POST["text_search"])) $text_search  =$_POST["text_search"];
 $token =$_POST["token"];
 
+ $link1 ='_order_report.php';
+        if($status =='paid_sales'){
+            $link1 = '_order_report_salesperson_paid.php';
+        }else if($status =='paid_driver'){
+            $link1 = '_order_report_driver_paid.php';
+        }
+
 $ob_api_path = new Api_Path();
-$api_path_dev = $ob_api_path->api_path_dev.'_order_report.php';
+$api_path_dev = $ob_api_path->api_path_dev.$link1;
+$domain_path = $ob_api_path->domain_path;
+
+$processing_percentage = $ob_api_path->processing_percentage;
 
 $post = array('token' => $token,'from_date'=>$from_date,
 'to_date'=>$to_date,'status'=>$status,
@@ -36,10 +46,10 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 $rsl=curl_exec ($ch);
 curl_close ($ch);
-//$lab_info =print_r($lab_info);
+
 
 $data_arr = json_decode($rsl,true);
-//print_r($data_arr);die();
+//print_r($data_arr); die();
 $data_temp = $data_arr['list'];
 
 $headers =array("Order #","Customer",
@@ -48,8 +58,9 @@ $headers =array("Order #","Customer",
     "Container","Processing","Paid",
     "COD","Scheduled","Del Date",
     "Delivered","Release","Depot",
-    "Miles","Driver",
-    "Driver Pay","Driver paid",
+    "Miles",
+    "Driver","Driver Pay","Driver paid",
+    "Salesperson","Salesperson Pay","Salesperson paid",
     "PROFIT");
 
 $key =array("order_id","shipping_customer_name",
@@ -58,8 +69,9 @@ $key =array("order_id","shipping_customer_name",
     "container_cost","processing","payment",
     "COD","Scheduled","assign_task_delivery_date",
     "delivered","release","quote_temp_depot_address",
-    "quote_temp_distance","assign_task_driver_name",
-    "assign_task_driver_total","driver_total_payment",
+    "quote_temp_distance",
+    "assign_task_driver_name","assign_task_driver_total","driver_total_payment",
+    "s_name","salesperson_amount","salesperson_total_payment",
     "PROFIT");
 if($data_arr["row_cnt"] > 0 ){
     $i=1;
@@ -81,6 +93,9 @@ $sheet->getStyle('P1:Q1')->getFill()
     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
     ->getStartColor()->setARGB('00ffff');
 $sheet->getStyle('S1:T1')->getFill()
+    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('00ffff');
+$sheet->getStyle('U1:V1')->getFill()
     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
     ->getStartColor()->setARGB('00ffff');
 
@@ -111,7 +126,6 @@ $styleArray = array(
         ),
     ),
 );
-
 
 for ($i = 0, $l = sizeof($data_temp); $i < $l; $i++) { // row $i
     $data = $data_temp[$i];
@@ -149,20 +163,23 @@ for ($i = 0, $l = sizeof($data_temp); $i < $l; $i++) { // row $i
         if($k =='revenue'){
             $revenue ='';
             if(is_numeric($data['total'])){
-                if(is_numeric($data['container_cost'])){
+               /* if(is_numeric($data['container_cost'])){
                     $revenue = $data['total']- $data['container_cost'];
                     $revenue = $revenue/100;
                     $revenue = '$'.number_format($revenue,2,".",",");
                 }else{
                     $revenue = $revenue/100;
                     $revenue = '$'.number_format($data['total'],2,".",",");
-                }
+                }*/
+                $revenue = '$'.number_format($data['total'],2,".",",");
                 $sheet->setCellValueByColumnAndRow($j + 1, ($i + 1 + 1), $revenue);
             }else{
                 $sheet->setCellValueByColumnAndRow($j + 1, ($i + 1 + 1), '');
             }
         }elseif($k =='processing'){
-            $sheet->setCellValueByColumnAndRow($j + 1, ($i + 1 + 1), "don't know");
+            $processing = $data['total'] * $processing_percentage;
+            $processing = '$'.number_format($processing,2,".",",");
+            $sheet->setCellValueByColumnAndRow($j + 1, ($i + 1 + 1), $processing);
         }elseif($k =='payment'){
             $payment='';
             if(is_numeric($data['payment'])){
@@ -170,7 +187,7 @@ for ($i = 0, $l = sizeof($data_temp); $i < $l; $i++) { // row $i
                     $payment ='✓';
                 }else{
                     $payment = '$'.number_format($data['payment'],2,".",",");
-                    $payment ='-'.$payment;
+                    $payment =$payment;
                 }
             }
             $sheet->setCellValueByColumnAndRow($j + 1, ($i + 1 + 1), $payment);
@@ -267,22 +284,53 @@ for ($i = 0, $l = sizeof($data_temp); $i < $l; $i++) { // row $i
                 $color = '00000';
                 if($data[$k] !=null){
                     $color = '00ffff';
-                    $data[$k] = '-$'.number_format($data[$k],2,".",",");
-                    if( $data[$k] ==$data[$k] ){
+                    if( $data[$k] >=$data['assign_task_driver_total'] && $data['assign_task_driver_total'] !=0){
                         $data[$k] ='✓';
+                    }else{
+                        if($data[$k] !='' && $data[$k] !=0) $data[$k] = '-$'.number_format($data[$k],2,".",",");
+                        else $data[$k] = '';
                     }
                 }
 
                 $sheet->getStyle('T'.$k1)->getFill()
                     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                     ->getStartColor()->setARGB($color);
+            }elseif($k =='s_name'){
+                $color = '#ffff';
+                if($data[$k] !=null){
+                    $color = '00ffff';
+                }
+                $sheet->getStyle('V'.$k1)->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB($color);
+            }elseif($k =='salesperson_amount'){
+                $color = '00000';
+                if($data[$k] !=null){
+                    $color = '00ffff';
+                    $data[$k] = '-$'.number_format($data[$k],2,".",",");
+                }
+                $sheet->getStyle('W'.$k1)->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB($color);
+            }elseif($k =='salesperson_total_payment'){
+                $color = '00000';
+                if(is_numeric($data['salesperson_total_payment'])){
+                    $color = '00ffff';
+                    if($data['salesperson_amount']==null || $data['salesperson_amount']=='') $data['salesperson_amount']=0;
+                    if($data['salesperson_total_payment'] >= $data['salesperson_amount'] && $data['salesperson_amount']!=0){
+                        $data[$k] ='✓';
+                    }else{
+                        if($data[$k] !=0 ) $data[$k] =  '-$'.number_format($data['salesperson_total_payment'],2,".",",");
+                        else $data[$k] ='';
+                    }
+                }
+                $sheet->setCellValueByColumnAndRow($j + 1, ($i + 1 + 1), $payment);
             }
 
             $sheet->setCellValueByColumnAndRow($j + 1, ($i + 1 + 1), $data[$k]);
         }
 
         $j++;
-
     }
    // die();
 }
@@ -290,9 +338,11 @@ for ($i = 0, $l = sizeof($data_temp); $i < $l; $i++) { // row $i
 $writer = new Xlsx($spreadsheet);
 
 $pathname ="download/";
-//$pdfPathTemp = $_SERVER["DOCUMENT_ROOT"].$pathname.'order_report.xlsx';
-$pdfPathTemp ='C:/xampp/htdocs/crm/download/order_report.xlsx';
+$pdfPathTemp = $_SERVER["DOCUMENT_ROOT"].$pathname.'order_report.xlsx';
+//$pdfPathTemp ='C:/xampp/htdocs/crm/download/order_report.xlsx';
 $writer->save($pdfPathTemp);
-$url ='http://localhost/crm/download/order_report.xlsx';
+//print_r($pdfPathTemp); die();
+$url =$domain_path.$pathname.'order_report.xlsx';
+//$url ='http://localhost/crm/download/order_report.xlsx';
 //$writer->save('php://output');
 echo json_encode(array("filename"=>'order_report.xlsx',"url_download_file"=>$url));

@@ -1,5 +1,6 @@
 
-function common_f(){}
+function common_f(){
+}
 common_f.NAME         = "common_f";
 common_f.VERSION      = "1.2";
 common_f.DESCRIPTION  = "Class common_f";
@@ -43,6 +44,7 @@ common_f.prototype = {
             }
         });
     },
+    /*****************************/
     acl_lists:function(el1,unit,role){
         var link3 = link._group_role_unit;
         $.ajax({
@@ -77,6 +79,27 @@ common_f.prototype = {
     validate_email:function(email){
         var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
         return pattern.test(email);
+    },
+    /**************************/
+    /***********************************/
+   /* add_driver_delivery_date:function(task_id,driver_id,driver_name,delivery_date,$me){
+        $('#assign-driver-modal').modal('show');
+         $('#assign-driver-modal .datepicker').datepicker({
+             container:'#assign-driver-modal',
+         dateFormat: 'yy-mm-dd',
+         changeMonth: true,
+         changeYear: true,
+         showOtherMonths: true,
+         prevText: '<i class="fa fa-chevron-left"></i>',
+         nextText: '<i class="fa fa-chevron-right"></i>'
+         });
+    },*/
+    /**********************************/
+    reset_driver_modal:function(){
+        $('#assign-driver-modal #task-id').val('')
+        $('#assign-driver-modal #driver-id').val('').trigger("change")
+        $('#assign-driver-modal #delivery-date').val('')
+        $('#assign-driver-modal #delivery-time').val('')
     }
 }
 

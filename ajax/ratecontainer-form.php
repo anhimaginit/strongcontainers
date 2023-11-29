@@ -68,15 +68,25 @@ $isEdit = $ratecontainer_current_form == 'edit';
                                 </section>
                                 
                             <?php } ?>
+                            <?= SmartForm::print_field('container_sku', SmartForm::FORM_FIELD_INPUT, array(
+                                'label' => 'Container SKU',
+                                'class' => '' . (!hasPermission($ratecontainer_form, 'container_sku', $ratecontainer_current_form) ? '" readonly="true' : ''),
+                            ), 6, true, hasPermission($ratecontainer_form, 'container_sku', 'show')) ?>
+                            
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="border-top: none; padding-top: 10px">
+                        <div class="row">
                             <?= SmartForm::print_field('container_rate', SmartForm::FORM_FIELD_INPUT, array(
                                 'label' => 'Container Rate',
                                 'class' => '' . (!hasPermission($ratecontainer_form, 'container_rate', $ratecontainer_current_form) ? '" readonly="true' : ''),
-                            ), 3, true, hasPermission($ratecontainer_form, 'container_rate', 'show')) ?>
+                            ), 6, true, hasPermission($ratecontainer_form, 'container_rate', 'show')) ?>
 
                             <?= SmartForm::print_field('container_cost', SmartForm::FORM_FIELD_INPUT, array(
                                 'label' => 'Container Cost',
                                 'class' => '' . (!hasPermission($ratecontainer_form, 'container_cost', $ratecontainer_current_form) ? '" readonly="true' : ''),
-                            ), 3, true, hasPermission($ratecontainer_form, 'container_cost', 'show')) ?>
+                            ), 6, true, hasPermission($ratecontainer_form, 'container_cost', 'show')) ?>
                             
                         </div>
                     </fieldset>

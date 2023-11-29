@@ -245,9 +245,6 @@ Contact.prototype = {
                   $('#contact_form #contact_document_pane').show();
                }
 
-
-
-
                 if (_contact.doc && _contact.doc.length > 0) {// Load Document
                   contactDocument.pushDocuments(_contact.doc)
                }
@@ -343,6 +340,58 @@ Contact.prototype = {
                   $('#contact_form [name="contact_salesman_id"]').val(_contact.contact_salesman_id).trigger('change');
                }
             }
+             //payment list
+             var tr =''
+             if(_contact.sale_paid_list.length >0){
+                 var prv ={}; var paid =0
+                 _contact.sale_paid_list.forEach(function(item){
+                     item.pay_note = (item.pay_note ==null)?"":item.pay_note
+                     if(prv.pay_order !=undefined){
+                         if(item.pay_order != prv.pay_order){
+                             tr +='<tr>' +
+                                 '<td colspan="4"></td>' +
+                                 '<td><div class="col col-12 c-red text-right">Salesperson payment</div>' +
+                                 '<div class="col col-12 c-orange text-right">Paid total</div></td>' +
+                                 '<td class="text-right"><div class="col col-12 c-red p-l">'+numeral(prv.salesperson_amount).format('$ 0,0.00')+'</div>' +
+                                 '<div class="col col-12 c-orange p-l">('+numeral(paid).format('$ 0,0.00')+')</div>' +
+                                 '</td>' +
+                                 '</tr>'
+                             paid =parseFloat(item.pay_amount)
+                         }
+
+                         tr +='<tr>' +
+                             '<td>'+item.order_title+'</td>' +
+                             '<td>'+item.pay_type+'</td>' +
+                             '<td>'+item.pay_date+'</td>' +
+                             '<td>'+item.pay_note+'</td>' +
+                             '<td>'+item.submit_name+'</td>' +
+                             '<td class="text-right p-l"><div class="col col-12">'+numeral(item.pay_amount).format('$ 0,0.00')+'</div></td>' +
+                             '</tr>'
+
+                     }else{
+                         tr ='<tr>' +
+                             '<td>'+item.order_title+'</td>' +
+                             '<td>'+item.pay_type+'</td>' +
+                             '<td>'+item.pay_date+'</td>' +
+                             '<td>'+item.pay_note+'</td>' +
+                             '<td>'+item.submit_name+'</td>' +
+                             '<td class="text-right p-l"><div class="col col-12">'+numeral(item.pay_amount).format('$ 0,0.00')+'</div></td>' +
+                             '</tr>'
+                     }
+                     prv = item
+                     paid = paid + parseFloat(item.pay_amount)
+                 });
+                 tr +='<tr>' +
+                     '<td colspan="4"></td>' +
+                     '<td><div class="col col-12 c-red text-right">Salesperson payment</div>' +
+                     '<div class="col col-12 c-orange text-right">Paid total</div></td>' +
+                     '<td class="text-right"><div class="col col-12 c-red p-l">'+numeral(prv.salesperson_amount).format('$ 0,0.00')+'</div>' +
+                     '<div class="col col-12 c-orange p-l">('+numeral(paid).format('$ 0,0.00')+')</div>' +
+                     '</td>' +
+                     '</tr>'
+                 $('#tb-paid-sales tbody').html(tr)
+             }
+             //
          }
       })
    },
@@ -594,9 +643,12 @@ Contact.prototype = {
             var _html = [];
             _html.push('<div class="col col-3">');
             _html.push('<div>Employee Type:</div>');
-            dataSet.forEach(function (item) {
-                _html.push('<div class="underline"><label class="checkbox checkbox-right" style="width:100%"><input type="checkbox" name="employee_type" value="' + item + '"' + (data && data.split(',').includes(item) ? ' checked' : '') + '> ' + item + ' <i></i></label></div>');;
-            });
+            if(dataSet !=undefined){
+                dataSet.forEach(function (item) {
+                    _html.push('<div class="underline"><label class="checkbox checkbox-right" style="width:100%"><input type="checkbox" name="employee_type" value="' + item + '"' + (data && data.split(',').includes(item) ? ' checked' : '') + '> ' + item + ' <i></i></label></div>');;
+                });
+            }
+
             _html.push('</div>');
             return _html.join('');
         }
@@ -712,14 +764,16 @@ Contact.prototype = {
          var checkList = data ? data.split(',') : []
          _html.push('<div class="col col-3">');
          _html.push('<div>Vendor Type:</div>');
-         dataSet.forEach(function (item) {
-            _html.push(
-               '<div class="underline">' +
-               '<label class="checkbox checkbox-right" style="width:100%">' +
-               '<input type="checkbox" name="vendor_type" value="' + item + '" class=""' + (checkList.includes(item) ? ' checked' : '') + '> ' + item +
-               ' <i></i></label></div>');
-         });
-         /**
+          if(dataSet !=undefined){
+              dataSet.forEach(function (item) {
+                  _html.push(
+                      '<div class="underline">' +
+                          '<label class="checkbox checkbox-right" style="width:100%">' +
+                          '<input type="checkbox" name="vendor_type" value="' + item + '" class=""' + (checkList.includes(item) ? ' checked' : '') + '> ' + item +
+                          ' <i></i></label></div>');
+              });
+          }
+               /**
           * Vendor exp
           */
          let currentDate = new Date();

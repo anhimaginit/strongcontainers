@@ -38,14 +38,12 @@ include('search_message.php');
 									<th class="hasinput"><input type="text" class="form-control" placeholder="Filter Company Name"></th>
 									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Depot Name"> </th>
 									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Rate Mile"> </th>
-									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Rate Cost"> </th>
 								</tr>
 								<tr>
 									<th>Rate Shipping ID</th>
 									<th class="col-md-2">Company Name</th>
 									<th class="col-md-2">Depot Name</th>
 									<th class="col-md-2">Rate Mile</th>
-									<th class="col-md-2">Rate Cost</th>
 								</tr>
 							</thead>
 							<tbody>

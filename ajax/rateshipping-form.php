@@ -65,10 +65,12 @@ $isEdit = $rateshipping_current_form == 'edit';
                                 'label' => 'Rate Mile',
                                 'class' => '' . (!hasPermission($rateshipping_form, 'rate_mile', $rateshipping_current_form) ? '" readonly="true' : ''),
                             ), 6, true, hasPermission($rateshipping_form, 'rate_mile', 'show')) ?>
-                            <?= SmartForm::print_field('rate_cost', SmartForm::FORM_FIELD_INPUT, array(
+                            <?php /*
+                            SmartForm::print_field('rate_cost', SmartForm::FORM_FIELD_INPUT, array(
                                 'label' => 'Rate Cost',
                                 'class' => '' . (!hasPermission($rateshipping_form, 'rate_cost', $rateshipping_current_form) ? '" readonly="true' : ''),
-                            ), 6, true, hasPermission($rateshipping_form, 'rate_cost', 'show')) ?>
+                            ), 6, true, hasPermission($rateshipping_form, 'rate_cost', 'show'))
+                           */ ?>
                         </div>
                     </fieldset>
 

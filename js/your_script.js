@@ -26,11 +26,15 @@ Storage.prototype.getItemValue = function (key) {
 }
 
 if (document.location.href.includes('localhost/')) {
-    // host = 'https://api.salescontrolcenter.com/';
+    //host = 'https://api.salescontrolcenter.com/';
     host = 'http://localhost/CRMAPI/';
     host2 = 'http://localhost/crm/';
     host3 = 'http://localhost/crm/#ajax/';
     // debugState = true;
+}else if (document.location.href.includes('http://strongtransportllc.com/')) {
+    host = 'https://api.salescontrolcenter.com/';
+    host2 = 'http://strongtransportllc.com/';
+    host3 = 'http://strongtransportllc.com/#ajax/';
 } else if (document.location.href.includes('strongcontainers.net')) {
     host = 'http://api.strongcontainers.net/';
     host2 = 'http://strongcontainers.net/';
@@ -434,10 +438,20 @@ var link = {
     _task_driver_info_id: host +'_task_driver_info_id.php',
     _pay_driver: host +'_pay_driver.php',
     _payment_task: host +'_payment_task.php',
+    _is_sku_existing :  host +'_is_sku_existing.php',
+    _product_sku :  host +'_product_sku.php',
+    _rate_container_update_sku :  host +'_rate_container_update_sku.php',
+    _order_report_email :  host +'_order_report_email.php',
+    _driverpaid_sku :  host +'_driverpaid_sku.php',
+    _order_for_task :  host +'_order_for_task.php',
+    _order_report_driver_paid :  host +'_order_report_driver_paid.php',
+    _order_report_salesperson_paid :  host +'_order_report_salesperson_paid.php',
+    _paid_sale_info :  host +'_paid_sale_info.php',
     /*******************************************/
     update_session :  host2 +'php/update_session.php',
     order_report :  host2 +'php/order_report.php',
     delete_file :  host2 +'php/delete_file.php',
+
 };
 
 var _linkSelect = {
@@ -628,6 +642,9 @@ function messageForm(mes, status, elem) {
     // console.log($(elem)[0].parentNode.offsetParent.offsetTop);
     // topFunction($(elem)[0].parentNode.offsetParent.offsetTop);
 };
+var container_plus_500 =500;
+var less_than_300ml =300;
+var processing_percentage =0.029;
 var _token = btoa('214a2036199e47ede48b7e468c796db5-us19');
 localStorage.setItemValue('token', _token);
 
@@ -994,7 +1011,7 @@ var order_select2_el =function(element,link,callback){
         }
     }).change(function(){
            if(element =='#assign_order'){
-               var option ='<option value="">Select SKU</option>';
+               var option =''
                //console.log($(this).find(":selected").attr('sku_list'))
                if($(this).find(":selected").attr('sku_list') !=undefined){
                    var $temp = $(this).find(":selected").attr('sku_list').split(",")
@@ -1093,6 +1110,91 @@ var user_select2_el =function(element,link,callback){
 
     if(callback) callback();
 }
+/****************************/
+var modal_user_select2_el =function(element,modal_id,link,callback){
+    var level =localStorage.getItemValue('level');
+    var login_id = localStorage.getItemValue('userID')
+    $(element).select2({
+        dropdownParent: $(modal_id),
+        placeholder: 'Search Driver',
+        minimumInputLength: 1,
+        language: {
+            inputTooShort: function () {
+                return 'Search Driver';
+            }
+        },
+        ajax: {
+            "async": true,
+            "crossDomain": true,
+            url: link,
+            type: 'post',
+            dataType: 'json',
+            delay: 300,
+            data: function (params) {
+                var _data = {token:_token,text_search:params.term,level:level,login_id:login_id}
+                return _data;
+            },
+            processResults: function (data, params) {
+                data1 = $.map(data, function (obj) {
+                    if(obj.driver_rate ==null || obj.undefined) obj.driver_rate =0
+                    obj.driver_rate = numeral(obj.driver_rate).format('$ 0,0.00')
+                    obj.driver_min_rate = numeral(obj.driver_min_rate).format('$ 0,0.00')
+                    return {
+                        text:obj.text ,
+                        id:obj.id,
+                        primary_street_address1:obj.primary_street_address1,
+                        primary_email:obj.primary_email,
+                        primary_phone:obj.primary_phone,
+                        driver_rate: obj.driver_rate,
+                        driver_min_rate:obj.driver_min_rate
+                    };
+                });
+                //console.log(data1);
+                return { results: data1 }
+
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) { return markup; },
+        templateResult: function (data) {
+            return '<div class="padding-5">' +
+                '<div class="select2-result-repository__title text-left">' + data.text +
+                '<div class="pull-right">' + data.primary_street_address1 +'</div>' +
+                '</div>' +
+                '<div class="select2-result-repository__title text-left">' + data.primary_email +
+                '<div class="pull-right">' + data.primary_phone +'</div>' +
+                '</div>' +
+                '<div class="select2-result-repository__title text-left">' + data.driver_rate + '/mile'+
+                '<div class="pull-right">Min: ' + data.driver_min_rate +'</div>' +
+                '</div>' +
+                '</div>';
+
+        },
+        templateSelection: function (data) {
+            // $(element).find('option').attr('code', item.code);
+            // $(element).find('option').attr('name1', item.name1);
+            if (!data.text) return data.id;
+            else return data.text;
+        }
+    }).change(function(){
+            $(modal_id +' #driver-err').css({"display":"none"})
+            if(element =='#assign-driver-modal #driver-id'){
+                var order =  $('#assign-driver-modal #order-edit').val();
+                var product = $('#assign-driver-modal #product_sku1').val();
+                var driver =$(this).find(":selected").val();
+                if(order !='' && product !=''){
+                    var data =  {
+                        order_id:order,
+                        prod_sku:product,
+                        contact_id:driver
+                    }
+                    calculate_driver_rate(data,element)
+                }
+            }
+        });
+
+    if(callback) callback();
+}
 /***********************************/
 var calculate_driver_rate = function(data,el){
     var _link =link._driver_total_rate;
@@ -1109,7 +1211,7 @@ var calculate_driver_rate = function(data,el){
         success: function (data){
             if(parseFloat(data) >0){
                var total = numeral(data).format('$ 0,0.00')
-               $(el).closest('.driver-rate').find('.driver-rate-total').text('(Total: '+total+')');
+               $(el).closest('.driver-rate').find('.driver-rate-total').text('(Delivery: '+total+')');
                $(el).closest('.driver-rate').find('.driver-rate-total').css({"display":""})
             }else{
                 $(el).closest('.driver-rate').find('.driver-rate-total').text("");
@@ -1134,7 +1236,15 @@ var updatesection = function(data){
         }
     })
 }
-
+/**********************************/
+var formatPhoneNumber_us = function (phoneNumberString) {
+    var cleaned = ('' + phoneNumberString).replace(/\D/g, '');
+    var match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+        return '(' + match[1] + ') ' + match[2] + '-' + match[3];
+    }
+    return '';
+}
 
 
 

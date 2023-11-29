@@ -1,21 +1,17 @@
-function pay_to_driver(){}
-pay_to_driver.NAME         = "pay_to_driver";
-pay_to_driver.VERSION      = "1.2";
-pay_to_driver.DESCRIPTION  = "Class pay_to_driver";
+function payment_form(){}
+payment_form.NAME         = "payment_form";
+payment_form.VERSION      = "1.2";
+payment_form.DESCRIPTION  = "Class payment_form";
 
-pay_to_driver.prototype.constructor = pay_to_driver;
-pay_to_driver.prototype = {
+payment_form.prototype.constructor = payment_form;
+payment_form.prototype = {
     init:function(){
-        var task_id = getUrlParaOnlyID('id')
-        pay_to_driver.prototype.get_info_to_payment(task_id)
-        pay_to_driver.prototype.get_payment_task(task_id)
-
-        $('#form-pay-to-drriver #pay_date').datetimepicker({
+        $('#form-payment #pay_date').datetimepicker({
             formatDate: 'Y-m-d H:i:s',
             lang: 'en'
         });
 
-        $("#form-pay-to-drriver #pay_amount").keypress(function (e) {
+        $("#form-payment #pay_amount").keypress(function (e) {
             var str1 = $(this).val();
             var ch = (str1.split(".").length - 1);
             var length = str1.length;
@@ -34,13 +30,9 @@ pay_to_driver.prototype = {
 
         });
 
-        $('#btn-payment').unbind('click').bind('click',function(){
-           var pay_driver =  $('#task_form #assign_driver_id').val()
-            pay_to_driver.prototype.new_payment_driver(task_id,pay_driver)
-        });
     },
     /***********************************/
-    get_info_to_payment:function(task_id){
+    get_info_form_payment:function(task_id){
         var data ={
             token:_token,
             task_id:task_id,
@@ -102,19 +94,47 @@ pay_to_driver.prototype = {
         })
     },
     /***********************************/
-    new_payment_driver:function(task_id,pay_driver){
+    show_payment:function(pay_to,form_id,is_pay_sale,$me,order_id){
+        $('#modal-pay-to-salesperson').modal("show")
+
+        $('#modal-pay-to-salesperson .btn-sale-payment').unbind('click').bind('click',function(){
+            payment_form.prototype.new_payment(pay_to,form_id,is_pay_sale,$me,order_id)
+        });
+    },
+    /***********************************/
+    new_payment:function(pay_to,form_id,is_pay_sale,$me,order_id){
+       var is_pay_to =0;
         var data ={
             token:_token,
             jwt: localStorage.getItemValue('jwt'),
             submit_by: localStorage.getItemValue('userID'),
-            pay_task:task_id,
-            pay_driver:pay_driver,
-            pay_date:$('#form-pay-to-drriver #pay_date').val(),
-            pay_amount:numeral($('#form-pay-to-drriver #pay_amount').val()).value(),
-            pay_type:$('#form-pay-to-drriver .radio-pay_type:checked').val(),
-            pay_note:$('#form-pay-to-drriver #pay_note').val()
+            pay_task:form_id,
+            pay_driver:pay_to,
+            pay_date:$('#form-payment #pay_date').val(),
+            pay_amount:numeral($('#form-payment #pay_amount').val()).value(),
+            pay_type:$('#form-payment .radio-pay_type:checked').val(),
+            pay_note:$('#form-payment #pay_note').val(),
+            transaction:'',
+            is_pay_to:is_pay_to
         }
         var _link =link._pay_driver;
+        if (is_pay_sale =='pay_sale'){
+            is_pay_to =1;
+            var data ={
+                token:_token,
+                jwt: localStorage.getItemValue('jwt'),
+                submit_by: localStorage.getItemValue('userID'),
+                pay_form:form_id,
+                pay_to:pay_to,
+                pay_date:$('#form-payment #pay_date').val(),
+                pay_amount:numeral($('#form-payment #pay_amount').val()).value(),
+                pay_type:$('#form-payment .radio-pay_type:checked').val(),
+                pay_note:$('#form-payment #pay_note').val(),
+                transaction:'',
+                is_pay_to:is_pay_to
+            }
+        }
+
         $.ajax({
             "async": true,
             "crossDomain": true,
@@ -126,22 +146,26 @@ pay_to_driver.prototype = {
             },
             success: function (data){
                 if(data.ERROR ==''){
-                    pay_to_driver.prototype.get_payment_task(task_id)
-                    $('#modal-pay-to-driver').modal('hide')
+                    if (is_pay_sale =='pay_sale'){
+                        payment_form.prototype.get_payment_form_id(form_id,is_pay_sale,$me)
+                    }else{
+                        orders_list.prototype.display_order_row(order_id,$me);
+                    }
+                    $('#modal-pay-to-salesperson').modal('hide')
                 }
 
             }
         })
     },
     /***********************************/
-    get_payment_task:function(task_id){
+    get_payment_form_id:function(form_id,is_pay_sale,$me){
         var data ={
             token:_token,
             jwt: localStorage.getItemValue('jwt'),
-            submit_by: localStorage.getItemValue('userID'),
-            pay_task:task_id
+            //submit_by: localStorage.getItemValue('userID'),
+            form_id:form_id
         }
-        var _link =link._payment_task;
+        var _link =link._paid_sale_info;
         $.ajax({
             "async": true,
             "crossDomain": true,
@@ -151,45 +175,40 @@ pay_to_driver.prototype = {
             data:data,
             error : function (status,xhr,error) {
             },
-            success: function (data){
-                if(data.total_payment !=null){
-                    $('#assign_driver_id').prop("disabled",true)
-                    $('#assign_order').prop("disabled",true)
-                    $('#product_sku').prop("disabled",true)
-                    $('#session-payment-driver').css({"display":""})
-                    //console.log(data.list.length)
-                    if(data.list.length >0){
-                        var tr =''; var total_paid =0
-                        data.list.forEach(function(item){
-                            total_paid = total_paid + parseFloat(item.pay_amount)
-                            item.pay_note = (item.pay_note==null)?'':item.pay_note
-                            tr +='<tr>' +
-                                '<td class="text-right">'+numeral(item.pay_amount).format('$ 0,0.00')+'</td>' +
-                                '<td class="text-center">'+item.pay_type+'</td>' +
-                                '<td class="text-center">'+item.create_date+'</td>' +
-                                '<td>'+item.pay_note+'</td>' +
-                                '</tr>'
-                        });
-                        $('#tb-payment-driver tbody').html(tr)
-                        $('#tb-need-pay-driver .paid-total').text(numeral(total_paid).format('$ 0,0.00'))
-                        var payment_amount = parseFloat(data.driver_total) - total_paid
-                        $('#tb-need-pay-driver .payment-amount').text(numeral(payment_amount).format('$ 0,0.00'))
-                        if(payment_amount <= 0 ){
-                            $('#need-btn-payment').remove()
-                        }
-                    }
-                }else{
-                    $('#session-payment-driver').css({"display":"none"})
-                    $('#tb-need-pay-driver .paid-total').text('$ 0,0.00')
-                    $('#tb-need-pay-driver .payment-amount').text(numeral(data.driver_total).format('$ 0,0.00'))
+            success: function (res){
+                var data =res.info_payment
+                data.salesperson_amount =(data.salesperson_amount !=null && data.salesperson_amount !='')?data.salesperson_amount:0
+                data.salesperson_paid =(data.salesperson_paid !=null && data.salesperson_paid !='')?data.salesperson_paid:0
+                var div1=''
+                div1 +='<div class="salesperson-view" style="margin-bottom: 5px; cursor: pointer">'+
+                    '<div class="col col-12">' +
+                    '<input type="hidden" class="salesperson" value="'+data.SID+'">'+data.s_name+'</div>' +
+                    '<div class="col col-12" ><input type="hidden" class="salesperson_amount" value="'+parseFloat(data.salesperson_amount)+'"> Pay salesperson: '+numeral(parseFloat(data.salesperson_amount)).format('$ 0,0.00')+'</div>' +
+                    '<div class="col col-12 c-red"><input type="hidden" class="salesperson_paid" value="'+parseFloat(data.salesperson_paid)+'">Paid: ('+numeral(parseFloat(data.salesperson_paid)).format('$ 0,0.00')+')</div>' +
+                    '</div>'
+
+                if(parseFloat(data.salesperson_amount) > parseFloat(data.salesperson_paid)){
+                    div1 +=  '<div style="margin-top:5px">' +
+                        '<button class="btn btn-danger btn-sm salesperson-pay">Payment</button>' +
+                        '</div>'
+                }
+
+                if($me !=''){
+                    $me.closest('td').html(div1)
                 }
             }
         })
-    }
+    },
+    /***********************************/
+    payment_form_reset: function(){
+        $('#form-payment #pay_amount').val('')
+        $('#form-payment #pay_date').val('')
+        $('#form-payment #pay_note').val('')
 
+    }
  }
 
-var py= new pay_to_driver();
+var pyment= new payment_form();
 $(function(){
-    py.init();
+    pyment.init();
 });

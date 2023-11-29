@@ -26,6 +26,7 @@ require_once 'inc/init.php';
                            <option value="PICKED UP" selected>PICKED UP – OUT FOR DELIVERY</option>
                            <option value="DELIVERED" selected>DELIVERED</option>
                            <option value="CLOSED">CLOSED</option>
+                            <option value="CANCELLED">CANCELLED</option>
                         </select>
                      </span>
                   </div>

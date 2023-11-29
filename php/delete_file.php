@@ -6,16 +6,10 @@ header('Access-Control-Allow-Credentials: true');
 
 $filename = $_POST['filename'];
 $pathname ="download/";
-//$pdfPathTemp = $_SERVER["DOCUMENT_ROOT"].$pathname.$filename;
-$pdfPathTemp ='C:/xampp/htdocs/crm/'.$pathname.$filename;
+$pdfPathTemp = $_SERVER["DOCUMENT_ROOT"].$pathname.$filename;
+//print_r($pdfPathTemp); die();
+//$pdfPathTemp ='C:/xampp/htdocs/crm/'.$pathname.$filename;
 
 $err = unlink($pdfPathTemp);
-/*print_r($pdfPathTemp);
-    if (file_exists($pdfPathTemp)) {
-       // unlink($pdfPathTemp);
-        echo json_encode(true);
-    } else {
-        echo json_encode('not exist');
-    }*/
 echo json_encode($err);
 //echo json_encode(true);

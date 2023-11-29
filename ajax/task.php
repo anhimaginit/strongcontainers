@@ -175,7 +175,7 @@ $total = '$ '.number_format($total,2,".",",");
 
                       <div class="row order-class">
                           <section class="col col-6 driver-rate">
-                              <label class="input">Assign driver<span class="driver-rate-total color-alert">(Total: <?=$total;?>)</span>
+                              <label class="input">Assign driver<span class="driver-rate-total color-alert">(Delivery: <?=$total;?>)</span>
                               <span class="<?=$clss_hidden;?>" style="float: right">
                                   <span class="btn btn-sm btn-primary" id="btn-send-email">Send email to driver</span></span>
                               </label>
@@ -284,6 +284,7 @@ $total = '$ '.number_format($total,2,".",",");
                                array('label' => 'PICKED UP – OUT FOR DELIVERY', 'value' => 'PICKED UP'),
                                array('label' => 'DELIVERED', 'value' => 'DELIVERED'),
                                array('label' => 'CLOSED', 'value' => 'CLOSED'),
+                               array('label' => 'CANCELLED', 'value' => 'CANCELLED')
                            ),
                            'disabled' => !hasPermission($taskForm, 'status', $task_current_form),
                            'value' => 'value',
@@ -415,7 +416,8 @@ $total = '$ '.number_format($total,2,".",",");
 <script src="<?= ASSETS_URL ?>/js/script/date.format.min.js"></script>
 <script src="<?= ASSETS_URL ?>/js/script/task/task.js"></script>
 <script src="<?= ASSETS_URL ?>/js/script/process_image.js"></script>
-    <script src="<?= ASSETS_URL ?>/js/script/task/pay_to_driver.js"></script>
+
+    <script src="<?php echo ASSETS_URL; ?>/js/script/orders_list.js"></script>
 <?php if ($isUpdate) { ?>
    <script>
       new ControlPage('#task-form-control');

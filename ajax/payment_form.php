@@ -1,6 +1,6 @@
 <link rel="stylesheet" type="text/css" href="<?= ASSETS_URL ?>/js/plugin/datetimepicker/jquery.datetimepicker.css">
 <link rel="stylesheet" href="<?= ASSETS_URL ?>/css/payment.css">
-<div class="smart-form" id="form-pay-to-drriver">
+<div class="smart-form" id="form-payment">
     <div id="message_form" role="alert" style="display:none"></div>
     <fieldset id="pay_acct_method" class="smart-form">
         <div class="row payment_content">
@@ -48,5 +48,4 @@
     </fieldset>
 </div>
 <script src="<?php echo ASSETS_URL ?>/js/plugin/datetimepicker/build/jquery.datetimepicker.full.js"></script>
-<script src="<?= ASSETS_URL ?>/js/script/pay-acct.js"></script>
-<script src="<?= ASSETS_URL ?>/js/script/task/pay_to_driver.js"></script>
+<script src="<?= ASSETS_URL ?>/js/script/payment_form.js"></script>

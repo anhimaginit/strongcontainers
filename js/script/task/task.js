@@ -364,6 +364,9 @@ Task.prototype = {
                       if (document.location.href.indexOf('dashboard_admin.php') > 0){
                           order_report.prototype.delete_row();
                           return;
+                      }else if(document.location.href.indexOf('order-list.php') > 0){
+                          orders_list.prototype.display_order_row(res.assign_order,'');
+                          return;
                       }
                       var cf ='';
                       cf = window.confirm('You have successfully create the task. Go to task?');
@@ -373,6 +376,10 @@ Task.prototype = {
                      }
                   } else {
                      messageForm('You have successfully save the task', true);
+                      if(document.location.href.indexOf('order-list.php') > 0){
+                          orders_list.prototype.display_order_row(res.assign_order);
+                          //document.location.href = host2 + '#ajax/order-list.php'
+                      }
                   }
                } else {
                   messageForm('Error! An error occurred. ' + res.ERROR, false);

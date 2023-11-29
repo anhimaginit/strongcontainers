@@ -25,6 +25,18 @@ window.contract_overage = 0;
 $('#display-acct-pay').parent().hide();
 Invoice.prototype = {
    init: function (callback) {
+       delete window.invID
+       if (getUrlParameter('id') != undefined && getUrlParameter('id') != '' && getUrlParameter('id') != '0') {
+           console.log("test11");
+           _invoice.initUpdate(getUrlParaOnlyID('id'));
+       } else if (getUrlParameter('c') && getUrlParameter('o')) {
+           console.log("test22");
+           _invoice.forwardFromOrder();
+       } else {
+           console.log("test33");
+           $('select[name="order_id"] optgroup#optgroupPayAll').prop('disabled', 'disabled');
+       }
+
       $('select[name="order_id"]').prop('disabled', 'disabled');
       confirmPayment = this.confirmPayment;
 
@@ -838,13 +850,20 @@ Invoice.prototype = {
 
 }
 var _invoice = new Invoice();
-_invoice.init(function () {
+$(function(){
+    _invoice.init();
+});
+/*_invoice.init(function () {
+    console.log("testnguu");
    delete window.invID
    if (getUrlParameter('id') != undefined && getUrlParameter('id') != '' && getUrlParameter('id') != '0') {
-      _invoice.initUpdate(getUrlParameter('id'));
+      console.log("test11");
+       _invoice.initUpdate(getUrlParaOnlyID('id'));
    } else if (getUrlParameter('c') && getUrlParameter('o')) {
+       console.log("test22");
       _invoice.forwardFromOrder();
    } else {
+       console.log("test33");
       $('select[name="order_id"] optgroup#optgroupPayAll').prop('disabled', 'disabled');
    }
-});
+});*/

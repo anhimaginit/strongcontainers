@@ -2,34 +2,53 @@
    <div class="tabbable contact-tab">
       <ul class="nav nav-tabs bordered">
          <li class="active"><a href="#notesTab" data-toggle="tab" rel="tooltip" data-placement="top">Notes</a></li>
+          <li data-tab="order-form" data-content="Order"><a href="#orderTab" data-toggle="tab" rel="tooltip" data-placement="top">Orders</a></li>
+          <li data-tab="salesperson-form" data-content="salesperson_form"><a href="#salesperson_form" data-toggle="tab" rel="tooltip" data-placement="top">Salesperson pay</a></li>
+
+
+         <!--
          <li><a href="#textTab" data-toggle="tab" rel="tooltip" data-placement="top">Text</a></li>
-         <li data-tab="order-form" data-content="Order"><a href="#orderTab" data-toggle="tab" rel="tooltip" data-placement="top">Orders</a></li>
-         <li data-tab="claim-form" data-content="Claim"><a href="#claimTab" data-toggle="tab" rel="tooltip" data-placement="top">Claims</a></li>
+          <li data-tab="claim-form" data-content="Claim"><a href="#claimTab" data-toggle="tab" rel="tooltip" data-placement="top">Claims</a></li>
          <li data-tab="warranty-form-addnew" data-content="Warranty"><a href="#warrantyTab" data-toggle="tab" rel="tooltip" data-placement="top">Warranties</a></li>
          <li><a href="#documentTab" data-toggle="tab" rel="tooltip" data-placement="top">Documents</a></li>
          <li class="pull-right" style="display:none">
             <button type="button" class="btn btn-sm btn-default padding-5" id="btnControlTabAdd"><i class="fa fa-plus"></i> <span id="txtControlTabAdd">Add New</span></button>
-         </li>
+         </li>-->
 
       </ul>
       <div class="tab-content padding-10">
          <div class="tab-pane active div_contain_note_table" id="notesTab">
             <table id="table_note_info" class="table table-bordered padding-10" style="table-layout: auto; width: 100%;"></table>
          </div>
-
+          <div class="tab-pane" id="orderTab">
+              <div>
+                  <table id="table_order_list" class="table table-bordered table-striped" style="table-layout: auto; width: 100%;">
+                      <thead></thead>
+                      <tbody></tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="tab-pane" id="salesperson_form">
+              <div>
+                  <table id="tb-paid-sales" class="table table-tripped table-bordered" style="margin-bottom:15px;">
+                      <thead>
+                      <tr>
+                          <th class="text-center">Order</th>
+                          <th class="text-center">Payment type</th>
+                          <th class="text-center">Payment date</th>
+                          <th class="text-center">Payment note</th>
+                          <th class="text-center">Payment amount</th>
+                          <th class="text-center">Submit by</th>
+                      </tr>
+                      </thead>
+                      <tbody></tbody>
+                  </table>
+              </div>
+          </div>
+         <!--
          <div class="tab-pane" id="textTab">
             <div>
                <table id="table_text_list" class="table table-bordered table-striped" style="width:100%">
-                  <thead></thead>
-                  <tbody></tbody>
-               </table>
-            </div>
-         </div>
-
-
-         <div class="tab-pane" id="orderTab">
-            <div>
-               <table id="table_order_list" class="table table-bordered table-striped" style="table-layout: auto; width: 100%;">
                   <thead></thead>
                   <tbody></tbody>
                </table>
@@ -96,6 +115,7 @@
             </div>
             <div id="table_document_error"></div>
          </div>
+          -->
       </div>
    </div>
 </fieldset>

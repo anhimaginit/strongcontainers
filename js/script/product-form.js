@@ -170,7 +170,7 @@ Product.prototype = {
         ignore: [],
         rules: {
             SKU: {
-                required: true, maxlength: 20, remote: {
+                required: true, maxlength: 351, remote: {
                     url: link._isSKUExisting,
                     type: 'post',
                     data: {

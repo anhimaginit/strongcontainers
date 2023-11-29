@@ -117,6 +117,12 @@ RateContainerList.prototype = {
         },
         {
           data: function (data) {
+            return data.container_sku ? data.container_sku : "";
+          },
+          searchable: true,
+        },
+        {
+          data: function (data) {
             return data.container_rate ? data.container_rate + " $" : "";
           },
           searchable: true,

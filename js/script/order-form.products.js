@@ -8,14 +8,30 @@ var productSelected = {};
 var productSelectArray = [];
 
 OrderProducts.prototype = {
-    init: function () {
+     /*init: function () {
+     table = $('#table_product_ordered');
+     //   this.bindEvent();
+     this.loadProductData(this.bindEvent);
+     setProductData = this.setProductData;
+     },*/
+    init_order_product: function (data) {
         table = $('#table_product_ordered');
         //   this.bindEvent();
-        this.loadProductData(this.bindEvent);
+        this.loadProductData(data,this.bindEvent);
         setProductData = this.setProductData;
     },
-    loadProductData: function (callback) {
-        var dataSKU = $.extend({}, template_data);
+    loadProductData: function (data,callback) {
+        //console.log(productBySKU)
+          productBySKU = data;
+        productBySKU.sort(function (a, b) {
+            return a.SKU.toLowerCase().localeCompare(b.SKU.toLowerCase())
+        });
+        productByName = data;
+        productByName.sort(function (a, b) {
+            return a.prod_name.toLowerCase().localeCompare(b.prod_name.toLowerCase())
+        });
+        /*
+       var dataSKU = $.extend({}, template_data);
         dataSKU.SKU = '';
         $.ajax({
             url: link._productsForOrder,
@@ -33,10 +49,10 @@ OrderProducts.prototype = {
                 });
             }
         });
+        */
         if (callback) callback();
     },
     bindEvent: function () {
-
         var _self = this;
 
         $('#init_fee, #processing_fee, #period').bind('change', function () {
@@ -57,7 +73,7 @@ OrderProducts.prototype = {
             var row = $(this).closest('tr');
             var length = $('#table_product_ordered tbody').find('tr').length;
             var index = row.index();
-            if (index >= 0 && index < productSelectArray.length && productSelectArray[index].sku && index < length - 1) {
+            /*if (index >= 0 && index < productSelectArray.length && productSelectArray[index].sku && index < length - 1) {
                 delete productSelected[productSelectArray[index].sku];
                 if (productSelectArray[index].prod_class == 'Warranty') {
                     hasWarranty = false;
@@ -66,10 +82,61 @@ OrderProducts.prototype = {
                 productSelectArray.splice(index, 1);
                 row.remove();
                 _self.getTotalPrice();
+            }*/
+            row.remove();
+            $('#_payment').text(numeral(0).format('$ 0,0.00'));
+            _orderProducts.getTotalPrice();
+            if($('#table_product_ordered tbody').find('tr').length==0){
+                _orderProducts.createInputFields();
             }
+
         })
 
-        $('input.quantity, input.discount, .discount_type, input.price').bind('change', function () {
+        $('input.quantity').bind('change', function () {
+            var available_product = parseInt($(this).closest('tr').find('.available_product').val())
+            var qty = $(this).val()
+            qty = parseInt(qty)
+            console.log("available_product="+available_product)
+            if(qty > available_product) qty = available_product
+            if(qty >=2){
+                if(parseInt($(this).closest('tr').find('.container_feet_type').val()) !=20){
+                    qty =1
+                }
+            }
+            $(this).val(qty)
+
+            var index = $(this).closest('tr').index();
+            var discount = $(this).closest('tr').find('input.discount');
+            var value = $(this).closest('tr').find('select.discount_type').val();
+            if (value == '%') {
+                discount.attr({ max: 100, min: 0 });
+                if (discount.val() != '' && 100 < numeral(discount.val()).value()) {
+                    discount.after('<label class="error discount-tooltip">Please enter discount equal or less than 100</label>');
+                    setTimeout(function () {
+                        $('.discount-tooltip').remove();
+                        discount.val(100);
+                    }, 2000);
+                }
+            } else if (value == '$') {
+                var price = numeral($(this).closest('tr').find('input.price').val()).value();
+                if (discount.val() != '' && price < numeral(discount.val()).value()) {
+                    discount.after('<label class="error discount-tooltip">Please enter discount value equal or less than price</label>');
+                    setTimeout(function () {
+                        $('.discount-tooltip').remove();
+                        discount.val(price);
+                    }, 2000);
+                }
+                discount.attr({ max: price, min: 0 });
+            }
+            $(this).closest('tr').find('input.line').val(numeral(_orderProducts.getTotalLine(null, index)).format('$ 0,0.00'));
+            _orderProducts.getTotalPrice();
+
+            var payment = numeral($('#_total').text()).value() - numeral($('#_paid').text()).value()
+            $('#_payment').text(numeral(payment).format('$ 0,0.00'));
+            $('.btnPaymentOrder').prop("disabled", true)
+        });
+
+        $('input.discount, .discount_type, input.price').bind('change', function () {
             var index = $(this).closest('tr').index();
             var discount = $(this).closest('tr').find('input.discount');
             var value = $(this).closest('tr').find('select.discount_type').val();
@@ -104,7 +171,7 @@ OrderProducts.prototype = {
         $('.SKU_search').typeahead({
             hint: false,
             highlight: true,
-            minLength: 0,
+            minLength: 0
 
         }, {
             name: 'SKU_searchs',
@@ -119,7 +186,7 @@ OrderProducts.prototype = {
                     var _html =
                         '<div class="media product_' + data.prod_id + '"' + style + '>' +
                         '<div class="media-left">' +
-                        '<img src="' + (data.prod_photo && data.prod_photo ? host + data.prod_photo : urlPhoto.itemProduct) + '" class="media-object img img-responsive img-thumbnail" style="width:40px">' +
+                        '<img src="' + (data.prod_photo && data.prod_photo ?  data.prod_photo : urlPhoto.itemProduct) + '" class="media-object img img-responsive img-thumbnail" style="width:40px">' +
                         '</div>' +
                         '<div class="media-body">' +
                         '<div class="media-heading username">SKU: ' + data.SKU + '<small class="pull-right">' + data.prod_class + '</small></div>' +
@@ -141,9 +208,10 @@ OrderProducts.prototype = {
                     return data.SKU.toLowerCase().includes(query.toLowerCase());
                 }));
                 // }
-            },
+            }
         }).bind("typeahead:selected", function (obj, data) {
                 var $me =$(this)
+
                 setProductData(this, data);
                 //close type head
                 $('.tt-open').css({"display":"none"})
@@ -210,10 +278,11 @@ OrderProducts.prototype = {
             //default value
             if (!data.quantity) data.quantity = 1;
             if (!data.discount) data.discount = 0;
-            if (!data.price && data.prod_price) data.prod_price;
+            if (!data.price && data.prod_price) data.price = data.prod_price;
             if (!data.sku && data.SKU) data.sku = data.SKU;
             if (!data.name && data.prod_name) data.name = data.prod_name;
             if (!data.container_type_id) data.container_type_id = data.container_type_id;
+            if (!data.product_qty) data.product_qty = 0;
             if (_orderProducts.checkSKU(data.sku)) {
                 $('#table_product_ordered tbody').find('td._itemSKU_' + data.sku).closest('tr').addClass('danger')
                 setTimeout(function () {
@@ -236,6 +305,21 @@ OrderProducts.prototype = {
             }
 
             $(elem).closest('tr').find('.container_type_id').val(data.container_type_id)
+            $(elem).closest('tr').find('.container_feet_type').val(data.container_feet_type)
+            $(elem).closest('tr').find('.depot_id').val(data.depot_id)
+            $(elem).closest('tr').find('.depot_name').val(data.depot_name)
+            $(elem).closest('tr').find('.container_rate').val(data.container_rate)
+            $(elem).closest('tr').find('.container_type_name').val(data.container_type_name)
+            $(elem).closest('tr').find('.depot_address').val(data.depot_address)
+            $(elem).closest('tr').find('.rate_mile').val(data.rate_mile)
+            $(elem).closest('tr').find('.vendor_id').val(data.vendor_id)
+            $(elem).closest('tr').find('.prod_name').val(data.prod_name)
+            $(elem).closest('tr').find('.prod_id').val(data.prod_id)
+            $(elem).closest('tr').find('.distance').val(data.distance)
+            $(elem).closest('tr').find('.available_product').val(data.product_qty)
+            $(elem).closest('tr').find('.check-rate').prop("checked",false)
+
+
             var tds = $(elem).closest('tr').find('td');//anh
             if (index < productSelectArray.length) {
                 tds.find('._itemSKU_' + productSelectArray[index].sku).removeClass('._itemSKU_' + productSelectArray[index].sku);
@@ -248,11 +332,12 @@ OrderProducts.prototype = {
             productSelected[data.sku] = data;
 
             if (index + 1 == $('#table_product_ordered tbody').children().length) {
-                _orderProducts.createInputFields();
+               // _orderProducts.createInputFields();
             }
 
-            //var tds = $(elem).closest('tr').find('td'); //anh
-            var id = data.id ? data.id : data.ID;
+            //var tds = $(elem).closest('tr').find('td'); //anh data.prod_id
+            //var id = data.id ? data.id : data.ID;
+            var id = data.id ? data.id : data.prod_id;
             tds.eq(0).find('input').val(id);
             if (data.prod_class == 'Warranty' && data.quantity > 1) {
                 messageForm('The Warranty class products can be only one in an order', 'warning', $('#tb_product_show').parent().find('.message_table:first'));
@@ -370,13 +455,16 @@ OrderProducts.prototype = {
                 quantity = numeral($tds.find('input.quantity').val() || $tds.eq(1).text()).value(),
                 prod_class = $tds.find('.prod_class').val() || $tds.eq(4).text(),
                 price = numeral($tds.find('.price').val() || $tds.eq(5).text()).value();
-
             if (prod_class != 'Discount' && id != '') {
-                result += quantity * price;
+                //console.log("quantity= "+quantity)
+                //console.log("price= "+price)
+                result += parseFloat(quantity) * parseFloat(price);
             }
         });
 
         var discount = this.getDiscount();
+        result = parseFloat(result) - parseFloat(discount);
+
         // $('#_discount').html('(' + numeral(discount).format('$ 0,0.00') + ')');
         // $('#_total_table').html(numeral(result).format('$ 0,0.00'));
         // $('#_discount').closest('td').removeClass('hidden');
@@ -392,8 +480,8 @@ OrderProducts.prototype = {
         // $('#_processing_fee').text(numeral(processing_fee).format('$ 0,0.00'));
         // $('#_total_processing_fee').text(numeral(processing_fee * paymentNumber).format('$ 0,0.00'));
         // $('#_period').text(paymentNumber);
-        total = result - discount + other_fee - discount_code_value;
-
+        total = result - parseFloat(discount) + other_fee - parseFloat(discount_code_value);
+        //console.log("total= "+total)
         if (total < old_total) total = old_total;
         // $('#_total').text(numeral(total).format('$ 0,0.00'));
 
@@ -492,7 +580,8 @@ OrderProducts.prototype = {
         return $('#table_product_ordered tbody').find('input._itemSKU_' + sku).length > 0;
     },
 
-    createInputFields: function (data, unbindEvent,quote_temp) {
+    createInputFields: function (data, unbindEvent,quote_temp,payment) {
+        //console.log(data)
         if (data) {
             productSelected[data.sku] = data;
             productSelectArray.push(data);
@@ -511,6 +600,7 @@ OrderProducts.prototype = {
         var depot_id =''
         var depot_name =''
         var container_type_id =''
+        var container_feet_type =''
         var container_rate =''
         var container_type_name =''
         var depot_address =''
@@ -519,10 +609,25 @@ OrderProducts.prototype = {
         var prod_name =''
         var prod_id =''
         var distance =''
-        if (quote_temp ){
+        var available_product=0
+        var input ='<input type="hidden" class="depot_id" value="'+depot_id+'">' +
+            '<input type="hidden" class="depot_name" value="'+depot_name+'">' +
+            '<input type="hidden" class="container_feet_type" value="'+container_feet_type+'">' +
+            '<input type="hidden" class="container_type_id" value="'+container_type_id+'">' +
+            '<input type="hidden" class="container_rate" value="'+container_rate+'">' +
+            '<input type="hidden" class="container_type_name" value="'+container_type_name+'">' +
+            '<input type="hidden" class="depot_address" value="'+depot_address+'">' +
+            '<input type="hidden" class="rate_mile" value="'+rate_mile+'">' +
+            '<input type="hidden" class="vendor_id" value="'+vendor_id+'">' +
+            '<input type="hidden" class="prod_name" value="'+prod_name+'">' +
+            '<input type="hidden" class="prod_id" value="'+prod_id+'">' +
+            '<input type="hidden" class="distance" value="'+distance+'">'+
+            '<input type="hidden" class="available_product" value="'+available_product+'">'
+        if (quote_temp){
             if(quote_temp.depot_id) depot_id = quote_temp.depot_id
             if(quote_temp.depot_name) depot_name = quote_temp.depot_name
             if(quote_temp.container_type_id) container_type_id = quote_temp.container_type_id
+            if(quote_temp.container_feet_type) container_feet_type = quote_temp.container_feet_type
             if(quote_temp.container_rate) container_rate = quote_temp.container_rate
             if(quote_temp.container_type_name) container_type_name = quote_temp.container_type_name
             if(quote_temp.depot_address) depot_address = quote_temp.depot_address
@@ -531,15 +636,11 @@ OrderProducts.prototype = {
             if(quote_temp.prod_name) prod_name = quote_temp.prod_name
             if(quote_temp.prod_id) prod_id = quote_temp.prod_id
             if(quote_temp.distance) distance = quote_temp.distance
-        }
-        if(container_type_id==''){
-            container_type_id = data.container_type_id
-        }
-        var _html =
-            '<tr>' +
-                '<input type="hidden" class="depot_id" value="'+depot_id+'">' +
+            if(quote_temp.product_qty) available_product = quote_temp.product_qty
+            input ='<input type="hidden" class="depot_id" value="'+depot_id+'">' +
                 '<input type="hidden" class="depot_name" value="'+depot_name+'">' +
                 '<input type="hidden" class="container_type_id" value="'+container_type_id+'">' +
+                '<input type="hidden" class="container_feet_type" value="'+container_feet_type+'">' +
                 '<input type="hidden" class="container_rate" value="'+container_rate+'">' +
                 '<input type="hidden" class="container_type_name" value="'+container_type_name+'">' +
                 '<input type="hidden" class="depot_address" value="'+depot_address+'">' +
@@ -547,32 +648,60 @@ OrderProducts.prototype = {
                 '<input type="hidden" class="vendor_id" value="'+vendor_id+'">' +
                 '<input type="hidden" class="prod_name" value="'+prod_name+'">' +
                 '<input type="hidden" class="prod_id" value="'+prod_id+'">' +
-                '<input type="hidden" class="distance" value="'+distance+'">' +
-            '<td class="hidden"><input class="prod_id_id" type="hidden" value="' + (data.prod_id ? data.prod_id : data.id ? data.id : '') + '"></td>' +
-            '<td class="hasinput input"><input type="number" value="' + (data.quantity ? data.quantity : data.qty ? data.qty : 1) + '" min="1" class="form-control quantity" placeholder="Quantity"></td>' +
-            '<td class="hasinput input"><input type="text" value="' + (data.sku ? data.sku : '') + '" class="form-control SKU_search input_search search" placeholder="SKU"></td>' +
-            '<td class="hasinput input"><input type="text" value="' + (data.prod_name ? data.prod_name : '') + '" class="form-control product_search input_search search" placeholder="Name"></td>' +
-            '<td class="hasinput input"><input type="text" value="' + (data.prod_class ? data.prod_class : '') + '" class="form-control prod_class" placeholder="Class">' +
-            '<td class="hasinput input text-right"><input type="text" value="' + numeral(data.price ? data.price : '0').format('0,0.00') + '" class="form-control input-currency price" class="text-right" placeholder="Price"></td>' +
-            '<td class="hasinput input text-right" style="max-width:80px;"><input value="' + (data.discount ? data.discount : '0') + '" class="form-control' + (data.discount_type == '$' ? ' input-currency' : ' text-currency') + ' discount" placeholder="Discount"></td>' +
-            '<td class="hasinput input" style="width:40px;">' +
-            '<select class="form-control discount_type">' +
-            '<option value="$" ' + (data.discount_type == '$' ? 'selected' : '') + '>$</option>' +
-            '<option value="%" ' + (data.discount_type == '%' ? 'selected' : '') + '>%</option>' +
-            '</select>' +
-            '</td>' +
-            '<td class="hasinput text-right" style="max-width:50px;"><input class="form-control input-currency bold line input-readonly total-line" readonly="true" placeholder="0.00" value="' + numeral(data.line_total ? data.line_total : '0.00').format('0,0.00') + '"></td>';
+                '<input type="hidden" class="distance" value="'+distance+'">'+
+                '<input type="hidden" class="available_product" value="'+available_product+'">'
+        }
+        if(payment >0){
+            input =''
+        }
+        if(container_type_id==''){
+            container_type_id = data.container_type_id
+        }
+        //console.log(data)
+        var _html =
+            '<tr>' +input+
+                '<td class="hidden"><input class="prod_id_id" type="hidden" value="' + (data.prod_id ? data.prod_id : data.id ? data.id : '') + '"></td>' +
+                '<td class="hasinput input"><input type="number" value="' + (data.quantity ? data.quantity : data.qty ? data.qty : 1) + '" min="1" class="form-control quantity is_disabled" placeholder="Quantity"></td>' +
+                '<td class="hasinput input"><input type="text" value="' + (data.sku ? data.sku : '') + '" class="form-control SKU_search input_search search is_disabled" placeholder="SKU"></td>' +
+                '<td class="hasinput input"><input type="text" value="' + (data.prod_name ? data.prod_name : '') + '" class="form-control product_search input_search search is_disabled" placeholder="Name"></td>' +
+                '<td class="hasinput input"><input type="text" value="' + (data.prod_class ? data.prod_class : '') + '" class="form-control prod_class is_disabled" placeholder="Class">' +
+                '<td class="hasinput input text-right"><input type="text" value="' + numeral(data.price ? data.price : '0').format('0,0.00') + '" class="form-control input-currency price is_disabled text-right"  placeholder="Price"></td>' +
+                '<td class="hasinput input text-right" style="max-width:80px;"><input value="' + (data.discount ? data.discount : '0') + '" class="form-control text-right is_disabled' + (data.discount_type == '$' ? ' input-currency' : ' text-currency') + ' discount" placeholder="Discount"></td>' +
+                '<td class="hasinput input" style="width:40px;">' +
+                '<select class="form-control discount_type text-right is_disabled">' +
+                '<option value="$" ' + (data.discount_type == '$' ? 'selected' : '') + '>$</option>' +
+                '<option value="%" ' + (data.discount_type == '%' ? 'selected' : '') + '>%</option>' +
+                '</select>' +
+                '</td>' +
+                '<td class="hasinput text-right" style="max-width:50px;"><input class="form-control input-currency bold line input-readonly total-line" readonly="true" placeholder="0.00" value="' + numeral(data.line_total ? data.line_total : '0.00').format('0,0.00') + '"></td>';
+
+
+        /*'<td class="hidden"><input class="prod_id_id" type="hidden" value="' + (data.prod_id ? data.prod_id : data.id ? data.id : '') + '"></td>' +
+        '<td class="hasinput input"><input type="number" value="' + (data.quantity ? data.quantity : data.qty ? data.qty : 1) + '" min="1" class="form-control quantity is_disabled" placeholder="Quantity"></td>' +
+        '<td class="hasinput input"><input type="text" value="' + (data.sku ? data.sku : '') + '" class="form-control SKU_search input_search search is_disabled" placeholder="SKU"></td>' +
+        '<td class="hasinput input"><input type="text" value="' + (data.prod_name ? data.prod_name : '') + '" class="form-control product_search input_search search is_disabled" placeholder="Name"></td>' +
+        '<td class="hasinput input"><input type="text" value="' + (data.prod_class ? data.prod_class : '') + '" class="form-control prod_class is_disabled" placeholder="Class">' +
+        '<td class="hasinput input text-right"><input type="text" value="' + numeral(data.price ? data.price : '0').format('0,0.00') + '" class="form-control input-currency price is_disabled text-right"  placeholder="Price"></td>' +
+        '<td class="hasinput input text-right" style="max-width:80px;"><input value="' + (data.discount ? data.discount : '0') + '" class="form-control text-right is_disabled' + (data.discount_type == '$' ? ' input-currency' : ' text-currency') + ' discount" placeholder="Discount"></td>' +
+        '<td class="hasinput input" style="width:40px;">' +
+        '<select class="form-control discount_type text-right is_disabled">' +
+        '<option value="$" ' + (data.discount_type == '$' ? 'selected' : '') + '>$</option>' +
+        '<option value="%" ' + (data.discount_type == '%' ? 'selected' : '') + '>%</option>' +
+        '</select>' +
+        '</td>' +
+        '<td class="hasinput text-right" style="max-width:50px;"><input class="form-control input-currency bold line input-readonly total-line" readonly="true" placeholder="0.00" value="' + numeral(data.line_total ? data.line_total : '0.00').format('0,0.00') + '"></td>';
+        */
         if (!unbindEvent) {
             _html += '<td class="hasinput input input-0">' +
                 '<div class="row col">' +
-                '<div class="col col-6">' +
+               /* '<div class="col col-6">' +
                     '<div class="inline-group">'+
                         '<label class="checkbox">' +
                             '<input type="checkbox" class="check-rate" '+check_rate+'>' +
                             '<i></i>' +
                         '</label>' +
                     '</div>' +
-                '</div>' +
+                '</div>' +*/
                 '<div class="col col-6">' +
                     '<button type="button" title="Remove this product" class="btn btn-sm btn-default label btnRemoveProduct">' +
                         '<i class="fa fa-trash text-danger"></i>' +
@@ -634,6 +763,6 @@ OrderProducts.prototype = {
 }
 
 var _orderProducts = new OrderProducts();
-_orderProducts.init();
+//_orderProducts.init();
 var orderDiscount = new OrderDiscount();
 orderDiscount.init();

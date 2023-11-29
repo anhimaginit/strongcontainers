@@ -11,169 +11,197 @@ RateContainer.prototype = {
     if (callback) callback();
   },
   setView: function () {
-    $('#ratecontainer_form [name=company_name]').select2({
-      placeholder: 'Search Company',
+    $("#ratecontainer_form [name=company_name]").select2({
+      placeholder: "Search Company",
       minimumInputLength: 1,
       language: {
-         inputTooShort: function () {
-            return 'Enter info';
-         },
+        inputTooShort: function () {
+          return "Enter info";
+        },
       },
       ajax: {
-         url: link._companiesByName,
-         type: 'post',
-         dataType: 'json',
-         delay: 300,
-         data: function (params) {
-            var _data = {
-               token: localStorage.getItemValue('token'),
-               jwt: localStorage.getItemValue('jwt'),
-               private_key: localStorage.getItemValue('userID'),
-               name: params.term
-            }
-            return _data;
-         },
-         processResults: function (data, params) {
-            if (data && data.list) {
-               data = data.list;
-            }
-            data = $.map(data, function (obj) {
-               obj.id = obj.ID;
-               return obj;
-            });
-            return { results: data }
-         },
-         cache: true
+        url: link._companiesByName,
+        type: "post",
+        dataType: "json",
+        delay: 300,
+        data: function (params) {
+          var _data = {
+            token: localStorage.getItemValue("token"),
+            jwt: localStorage.getItemValue("jwt"),
+            private_key: localStorage.getItemValue("userID"),
+            name: params.term,
+          };
+          return _data;
+        },
+        processResults: function (data, params) {
+          if (data && data.list) {
+            data = data.list;
+          }
+          data = $.map(data, function (obj) {
+            obj.id = obj.ID;
+            return obj;
+          });
+          return { results: data };
+        },
+        cache: true,
       },
-      escapeMarkup: function (markup) { return markup; },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
       templateResult: function (item) {
-         var city_state = [];
-         if (item.city && item.city.trim() != '') city_state.push(item.city);
-         if (item.state && item.state.trim() != '') city_state.push(item.state);
-         return '<div class="padding-5">' +
-            '<div class="">' + item.name + '<div class="pull-right">' + city_state.join(' - ') + '</div>' +
-            '</div>' +
-            (item.address1 && item.address1 != '' ? '<div>' + item.address1 + '</div>' : '') +
-            '</div>';
+        var city_state = [];
+        if (item.city && item.city.trim() != "") city_state.push(item.city);
+        if (item.state && item.state.trim() != "") city_state.push(item.state);
+        return (
+          '<div class="padding-5">' +
+          '<div class="">' +
+          item.name +
+          '<div class="pull-right">' +
+          city_state.join(" - ") +
+          "</div>" +
+          "</div>" +
+          (item.address1 && item.address1 != ""
+            ? "<div>" + item.address1 + "</div>"
+            : "") +
+          "</div>"
+        );
       },
       templateSelection: function (item) {
-         if (!item.name)
-            if (item.text) return item.text;
-            else return item.id;
-         return item.name;
-      }
-   });
+        if (!item.name)
+          if (item.text) return item.text;
+          else return item.id;
+        return item.name;
+      },
+    });
 
-   // company name
+    // company name
 
-   $('#ratecontainer_form [name=depot_name]').select2({
-    placeholder: 'Search Depot',
-    minimumInputLength: 1,
-    language: {
-       inputTooShort: function () {
-          return 'Enter info';
-       },
-    },
-    ajax: {
-      "async": true,
-      "crossDomain": true,
-       url: link._depots_search,
-       type: 'post',
-       dataType: 'json',
-       delay: 300,
-       data: function (params) {
+    $("#ratecontainer_form [name=depot_name]").select2({
+      placeholder: "Search Depot",
+      minimumInputLength: 1,
+      language: {
+        inputTooShort: function () {
+          return "Enter info";
+        },
+      },
+      ajax: {
+        async: true,
+        crossDomain: true,
+        url: link._depots_search,
+        type: "post",
+        dataType: "json",
+        delay: 300,
+        data: function (params) {
           var _data = {
-             token: localStorage.getItemValue('token'),
-             text_search: params.term,
+            token: localStorage.getItemValue("token"),
+            text_search: params.term,
             //  jwt: localStorage.getItemValue('jwt'),
-            login_id: localStorage.getItemValue('userID'),
-            level: localStorage.getItemValue('level')
-          }
+            login_id: localStorage.getItemValue("userID"),
+            level: localStorage.getItemValue("level"),
+          };
           return _data;
-       },
-       processResults: function (data, params) {
+        },
+        processResults: function (data, params) {
           if (data && data.depots) {
-             data = data.depots;
+            data = data.depots;
           }
           data = $.map(data, function (obj) {
-             obj.id = obj.depot_id;
-             return obj;
+            obj.id = obj.depot_id;
+            return obj;
           });
-          return { results: data }
-       },
-       cache: true
-    },
-    escapeMarkup: function (markup) { return markup; },
-    templateResult: function (item) {
-       var city_state = [];
-       if (item.depot_city && item.depot_city.trim() != '') city_state.push(item.depot_city);
-       if (item.depot_state && item.depot_state.trim() != '') city_state.push(item.depot_state);
-       return '<div class="padding-5">' +
-          '<div class="">' + item.depot_name + '<div class="pull-right">' + city_state.join(' - ') + '</div>' +
-          '</div>' +
-          (item.depot_address && item.depot_address != '' ? '<div>' + item.depot_address + '</div>' : '') +
-          '</div>';
-    },
-    templateSelection: function (item) {
-       if (!item.depot_name)
+          return { results: data };
+        },
+        cache: true,
+      },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
+      templateResult: function (item) {
+        var city_state = [];
+        if (item.depot_city && item.depot_city.trim() != "")
+          city_state.push(item.depot_city);
+        if (item.depot_state && item.depot_state.trim() != "")
+          city_state.push(item.depot_state);
+        return (
+          '<div class="padding-5">' +
+          '<div class="">' +
+          item.depot_name +
+          '<div class="pull-right">' +
+          city_state.join(" - ") +
+          "</div>" +
+          "</div>" +
+          (item.depot_address && item.depot_address != ""
+            ? "<div>" + item.depot_address + "</div>"
+            : "") +
+          "</div>"
+        );
+      },
+      templateSelection: function (item) {
+        if (!item.depot_name)
           if (item.text) return item.text;
           else return item.depot_id;
-       return item.depot_name;
-    }
-  });
+        return item.depot_name;
+      },
+    });
 
-  // container type name
+    // container type name
 
-  $('#ratecontainer_form [name=container_type_name]').select2({
-    placeholder: 'Search Container Type',
-    minimumInputLength: 1,
-    language: {
-       inputTooShort: function () {
-          return 'Enter info';
-       },
-    },
-    ajax: {
-      "async": true,
-      "crossDomain": true,
-       url: link._container_type_search,
-       type: 'post',
-       dataType: 'json',
-       delay: 300,
-       data: function (params) {
+    $("#ratecontainer_form [name=container_type_name]").select2({
+      placeholder: "Search Container Type",
+      minimumInputLength: 1,
+      language: {
+        inputTooShort: function () {
+          return "Enter info";
+        },
+      },
+      ajax: {
+        async: true,
+        crossDomain: true,
+        url: link._container_type_search,
+        type: "post",
+        dataType: "json",
+        delay: 300,
+        data: function (params) {
           var _data = {
-             token: localStorage.getItemValue('token'),
-             text_search: params.term,
-            login_id: localStorage.getItemValue('userID'),
-            level: localStorage.getItemValue('level')
-          }
+            token: localStorage.getItemValue("token"),
+            text_search: params.term,
+            login_id: localStorage.getItemValue("userID"),
+            level: localStorage.getItemValue("level"),
+          };
           return _data;
-       },
-       processResults: function (data, params) {
+        },
+        processResults: function (data, params) {
           if (data && data.container_types) {
-             data = data.container_types;
+            data = data.container_types;
           }
           data = $.map(data, function (obj) {
-             obj.id = obj.container_type_id;
-             return obj;
+            obj.id = obj.container_type_id;
+            return obj;
           });
-          return { results: data }
-       },
-       cache: true
-    },
-    escapeMarkup: function (markup) { return markup; },
-    templateResult: function (item) {
-       return '<div class="padding-5">' +
-          '<div class="">' + item.container_type_name + '<div class="pull-right">' + '</div>' +
-          '</div>';
-    },
-    templateSelection: function (item) {
-       if (!item.container_type_name)
+          return { results: data };
+        },
+        cache: true,
+      },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
+      templateResult: function (item) {
+        return (
+          '<div class="padding-5">' +
+          '<div class="">' +
+          item.container_type_name +
+          '<div class="pull-right">' +
+          "</div>" +
+          "</div>"
+        );
+      },
+      templateSelection: function (item) {
+        if (!item.container_type_name)
           if (item.text) return item.text;
           else return item.container_type_id;
-       return item.container_type_name;
-    }
-  });
-  
+        return item.container_type_name;
+      },
+    });
   },
   bindEvent: function () {
     var _self = this;
@@ -184,14 +212,22 @@ RateContainer.prototype = {
     $("#ratecontainer_form").validate(_self.formValidateOption);
 
     var fw = getUrlParameter("fw");
-    if (window.location.href.indexOf("ratecontainer") >= 0 && !(window.opener && fw)) {
+    if (
+      window.location.href.indexOf("ratecontainer") >= 0 &&
+      !(window.opener && fw)
+    ) {
       $("#btnBackContact").on("click", function () {
         window.history.back();
       });
     }
+
+    $('input[name="container_sku"]').mousedown(function () {
+      $('input[name="container_sku"]').parent().children('p').remove();
+  });
   },
   initUpdate: function (id) {
     console.log("da vao init update: ", id);
+    $('input[name="container_sku"]').unbind();
 
     contact_state = new State({ element: "#ratecontainer_form" });
     var _self = this;
@@ -204,8 +240,7 @@ RateContainer.prototype = {
         private_key: localStorage.getItemValue("userID"),
       },
       dataType: "json",
-      error: function (res) {
-      },
+      error: function (res) {},
       success: function (res) {
         var _rateContainer = res;
         if (_rateContainer == undefined || !_rateContainer.rate_container_id) {
@@ -218,6 +253,8 @@ RateContainer.prototype = {
           );
           return;
         } else {
+          $('input[name="container_sku"]').prop('readonly', true);
+          
           for (var key in _rateContainer) {
             $("#ratecontainer_form input:text[name='" + key + "']").val(
               _rateContainer[key]
@@ -228,15 +265,47 @@ RateContainer.prototype = {
           }
 
           if (_rateContainer.vendor_id && _rateContainer.company_name) {
-            $('#ratecontainer_form [name="company_name"]').append('<option value="' + _rateContainer.vendor_id + '" selected>' + _rateContainer.company_name + '</option>').trigger('change');
-                $.cookie('companyID', _rateContainer.vendor_id, { path: '/', maxAge: 15 });
+            $('#ratecontainer_form [name="company_name"]')
+              .append(
+                '<option value="' +
+                  _rateContainer.vendor_id +
+                  '" selected>' +
+                  _rateContainer.company_name +
+                  "</option>"
+              )
+              .trigger("change");
+            $.cookie("companyID", _rateContainer.vendor_id, {
+              path: "/",
+              maxAge: 15,
+            });
 
-            $('#ratecontainer_form [name="depot_name"]').append('<option value="' + _rateContainer.depot_id + '" selected>' + _rateContainer.depot_name + '</option>').trigger('change');
-                $.cookie('depotID', _rateContainer.depot_id, { path: '/', maxAge: 15 });
+            $('#ratecontainer_form [name="depot_name"]')
+              .append(
+                '<option value="' +
+                  _rateContainer.depot_id +
+                  '" selected>' +
+                  _rateContainer.depot_name +
+                  "</option>"
+              )
+              .trigger("change");
+            $.cookie("depotID", _rateContainer.depot_id, {
+              path: "/",
+              maxAge: 15,
+            });
 
-            $('#ratecontainer_form [name="container_type_name"]').append('<option value="' + _rateContainer.container_type_id + '" selected>' + _rateContainer.container_type_name + '</option>').trigger('change');
-                $.cookie('containertypeID', _rateContainer.container_type_id, { path: '/', maxAge: 15 });
-                
+            $('#ratecontainer_form [name="container_type_name"]')
+              .append(
+                '<option value="' +
+                  _rateContainer.container_type_id +
+                  '" selected>' +
+                  _rateContainer.container_type_name +
+                  "</option>"
+              )
+              .trigger("change");
+            $.cookie("containertypeID", _rateContainer.container_type_id, {
+              path: "/",
+              maxAge: 15,
+            });
           }
         }
       },
@@ -249,6 +318,43 @@ RateContainer.prototype = {
       container_type_name: { required: true },
       container_rate: { maxlength: 50, digits: false, number: true },
       container_cost: { maxlength: 50, digits: false, number: true },
+      container_sku: {
+        required: getUrlParameter("id") ? false : true,
+        maxlength: 300,
+        remote: {
+          url: link._is_sku_existing,
+          type: "post",
+          data: {
+            token: localStorage.getItemValue("token"),
+            container_sku: function () {
+              return $("[name=container_sku]").val();
+            },
+          },
+          dataFilter: function (data) {
+            if(getUrlParameter("id")) {
+              return true;
+            }
+            if (data == "true") {
+              $('input[name="container_sku"]').parent().children("p").remove();
+              $('input[name="container_sku"]').parent().addClass("state-error");
+              $('input[name="container_sku"]')
+                .parent()
+                .append('<p class="error error">This SKU is already exist</p>');
+            } else {
+              $('input[name="container_sku"]').removeClass("error");
+              $('input[name="container_sku"]').parent().children("p").remove();
+              $('input[name="container_sku"]').parent().addClass("state-success");
+              $('input[name="container_sku"]')
+                .parent()
+                .append(
+                  '<p><i class="fa fa-check text-success icon-append"></i></p>'
+                );
+            }
+            
+            return data !== "true";
+          },
+        },
+      },
     },
     messages: {
       company_name: {
@@ -273,7 +379,10 @@ RateContainer.prototype = {
         }
       });
 
-      if (getUrlParameter("id") && window.location.href.indexOf("ratecontainer") >= 0) {
+      if (
+        getUrlParameter("id") &&
+        window.location.href.indexOf("ratecontainer") >= 0
+      ) {
         _data.forEach(function (elem) {
           if (elem.value == "") {
             _f_data[elem.name] = elem.value;
@@ -287,19 +396,22 @@ RateContainer.prototype = {
         data_post: _f_data,
       };
 
-      _f_data.vendor_id = $('#ratecontainer_form [name=company_name]').val();
-      _f_data.depot_id = $('#ratecontainer_form [name=depot_name]').val();
-      _f_data.container_type_id = $('#ratecontainer_form [name=container_type_name]').val();
+      _f_data.vendor_id = $("#ratecontainer_form [name=company_name]").val();
+      _f_data.depot_id = $("#ratecontainer_form [name=depot_name]").val();
+      _f_data.container_type_id = $(
+        "#ratecontainer_form [name=container_type_name]"
+      ).val();
 
-      delete _f_data.company_name
-      delete _f_data.depot_name
-      delete _f_data.container_type_name
+      delete _f_data.company_name;
+      delete _f_data.depot_name;
+      delete _f_data.container_type_name;
 
-      if (getUrlParameter("id") && window.location.href.indexOf("ratecontainer") >= 0) {
+      if (
+        getUrlParameter("id") &&
+        window.location.href.indexOf("ratecontainer") >= 0
+      ) {
         _formData.rate_container_id = parseInt(getUrlParameter("id"));
       }
-
-      console.log('_formData', _formData);
 
       $.ajax({
         async: true,
@@ -367,7 +479,10 @@ RateContainer.prototype = {
 };
 var _RateContainer = new RateContainer();
 _RateContainer.init(function () {
-  if (getUrlParameter("id") && window.location.href.indexOf("ratecontainer") >= 0) {
+  if (
+    getUrlParameter("id") &&
+    window.location.href.indexOf("ratecontainer") >= 0
+  ) {
     RateContainer.prototype.initUpdate(getUrlParameter("id"));
   } else {
     contact_state = new State({ element: "#ratecontainer_form" });

@@ -38,6 +38,7 @@ include('search_message.php');
 									<th class="hasinput"><input type="text" class="form-control" placeholder="Filter Company Name"></th>
 									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Depot Name"> </th>
 									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Container Type"> </th>
+									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Container SKU"> </th>
 									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Container Rate"> </th>
 									<th class="hasinput"> <input type="text" class="form-control" placeholder="Filter Container Cost"> </th>
 								</tr>
@@ -46,6 +47,7 @@ include('search_message.php');
 									<th class="col-md-2">Company Name</th>
 									<th class="col-md-2">Depot Name</th>
 									<th class="col-md-2">Container Type</th>
+									<th class="col-md-2">Container SKU</th>
 									<th class="col-md-2">Container Rate</th>
 									<th class="col-md-2">Container Cost</th>
 								</tr>

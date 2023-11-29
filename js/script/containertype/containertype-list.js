@@ -103,6 +103,11 @@ ContainerTypeList.prototype = {
             return data.container_type_name ? data.container_type_name : "";
           },
         },
+        {
+          data: function (data, type, row) {
+            return data.container_feet_type ? data.container_feet_type : "";
+          },
+        },
       ],
       createdRow: function (row, data, dataIndex) {
         // if(!['Affiliate'].includes(department)){

@@ -166,6 +166,7 @@ $isEdit = $contact_current_form == 'edit';
                                 array('label' => 'Affiliate', 'value' => "Affiliate"),
                                 array('label' => 'Lead', 'value' => "Lead"),
                                 array('label' => 'Driver', 'value' => "Driver"),
+                                array('label' => 'Customer', 'value' => "Customer")
                             );
 
                             ?>

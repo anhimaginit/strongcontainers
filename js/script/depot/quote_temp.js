@@ -96,6 +96,7 @@ quoteTemp.prototype = {
                         var item = item1.elements[0]
                         if(item.status =="OK"){
                             var distace =item.distance.text.split(" ")[0];
+                            distace = distace.replace( /,/g, "" );
                             var add_el = {address : origin[i],distance:distace}
                             distance_arr.push(add_el)
                         }
@@ -109,7 +110,7 @@ quoteTemp.prototype = {
                         list.forEach(function(item2){
                             // if(item1.address.localeCompare(item2.depot_address) ==0){
                             if(item1.address == item2.depot_address){
-                                var best_price = parseFloat(item2.rate_mile) * parseFloat(item1.distance) + parseFloat(item2.container_rate);
+                                var best_price = parseFloat(item2.rate_mile) * parseFloat(item1.distance) + parseFloat(item2.container_rate) +parseFloat(container_plus_500);
                                 var temp = {
                                     distance: item1.distance,
                                     depot_id:item2.depot_id,
@@ -379,12 +380,7 @@ quoteTemp.prototype = {
                     //console.log(data.code)
                     if(data.code !=''){
                         document.location.href =host2 +'quote.php?id='+data.code
-                        //alert("Review your order in your email")
-                        //$('#your-cart #depot-tbl tbody').html('')
-                       // $('#your-cart #attach-payment').remove()
-                       // $('#home-page').css({"display":""})
-                       // $('#your-cart').css({"display":"none"})
-                        //var code = getUrlParaOnlyID('id')
+
                     }
                 }
             }

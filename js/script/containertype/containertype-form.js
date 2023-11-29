@@ -66,6 +66,7 @@ ContainerType.prototype = {
   formValidateOption: {
     rules: {
       container_type_name: { required: true, maxlength: 100 },
+      container_feet_type: { maxlength: 50, digits: false, number: true },
     },
     messages: {
       container_type_name: {

@@ -40,10 +40,13 @@ include('search_message.php');
                                     <th style="width:20%;"></th>
                                     <th class="hasinput"><input type="text" class="form-control"
                                             placeholder="Filter Name"></th>
+                                    <th class="hasinput"><input type="text" class="form-control"
+                                            placeholder="Filter Types"></th>
                                 </tr>
                                 <tr>
                                     <th class="col-md-1">Container Type ID</th>
-                                    <th class="col-md-2">Container Type Name</th>
+                                    <th class="col-md-2">Type Name</th>
+                                    <th class="col-md-2">Type Feet</th>
                                 </tr>
                             </thead>
                             <tbody>

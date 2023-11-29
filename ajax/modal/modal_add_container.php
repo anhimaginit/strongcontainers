@@ -11,7 +11,7 @@
             <div class="modal-body ">
                 <!---->
                 <div class="p-lr m-t10">
-                   <div class="mg-20 m-b10" id="container-content" style="height: 500px; overflow-y: scroll; overflow-x: hidden">
+                   <div class="mg-20 m-b10" id="container-content" style="height: 300px; overflow-y: scroll; overflow-x: hidden">
                    </div>
                 </div>
                 <footer class="m-t15">

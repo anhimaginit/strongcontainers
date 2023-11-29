@@ -2253,7 +2253,9 @@ a .c-white{color: #ffffff!important;}
 .c-black{
     color: #000000 ;
 }
-
+.c-herf{
+    color: #3276b1 ;
+}
 .c_err{
      color:rgb(235, 46, 46);
 }
@@ -2644,3 +2646,45 @@ li.sku-select{
 .dropdown-p li:hover {background-color: blue;}
 
 .show-dropdown {display: block;}
+
+.absolute-report{
+    position: relative;
+}
+.absolute-report .tooltiptext {
+    visibility: hidden;
+    width: 250px;
+    background-color: #0000ff;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 5px 0 2px 10px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.absolute-report:hover .tooltiptext {
+    visibility: visible;
+}
+
+.absolute-report .tooltip_depot {
+    visibility: hidden;
+    width: 350px;
+    background-color: darkgrey;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 5px 0 2px 10px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 10;
+}
+
+.absolute-report:hover .tooltip_depot {
+    visibility: visible;
+}
+
+/********************seclect2 width100*/
+.select2-100 .select2-container{width: 100%!important;}

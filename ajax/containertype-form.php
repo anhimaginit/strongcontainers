@@ -44,7 +44,12 @@ $isEdit = $containertype_current_form == 'edit';
                             <?= SmartForm::print_field('container_type_name', SmartForm::FORM_FIELD_INPUT, array(
                                 'label' => 'Container Type Name',
                                 'class' => '"' . (!hasPermission($containertype_form, 'container_type_name', $containertype_current_form) ? ' readonly="true' : ''),
-                            ), 12, true, hasPermission($containertype_form, 'container_type_name', 'show')); ?>
+                            ), 6, true, hasPermission($containertype_form, 'container_type_name', 'show')); ?>
+
+                            <?= SmartForm::print_field('container_feet_type', SmartForm::FORM_FIELD_INPUT, array(
+                                'label' => 'Container Feet Type',
+                                'class' => '"' . (!hasPermission($containertype_form, 'container_feet_type', $containertype_current_form) ? ' readonly="true' : ''),
+                            ), 6, true, hasPermission($containertype_form, 'container_feet_type', 'show')); ?>
                         </div>
                     </fieldset>
                     <footer>

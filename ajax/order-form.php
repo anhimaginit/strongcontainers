@@ -39,7 +39,6 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
                 <?php include_once 'modal/modal_add_container.php'; ?>
                 <?php include_once 'modal/modal_success.php'; ?>
 				<!-- end widget edit box -->
-				
 				<?php 
 				$canAddContact = canAddForm('ContactForm') && basename($_SERVER['PHP_SELF']) =='order-form.php';
 				if($canAddContact && basename($_SERVER['PHP_SELF'])=='order-form.php'){?>
@@ -53,12 +52,19 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 				</div>
 
 				<?php } ?>
+                <?php
+                  if($operation_order =='edit'){ ?>
+
+                <?php  }
+                ?>
+
 				<div class="row" id="pane_link_to_warranty"></div>
 				<div class="row" id="pane_link_to_invoice"></div>
 				<form class="smart-form" id="order_form" method="POST">
 					<div id="message_form" role="alert" style="display:none"></div>
 					<fieldset>
 						<div class="row">
+                            <input type="hidden" id="status-waiting-confirm" value="">
 							<input type="hidden" name="warranty" value="0">
 							<input type="hidden" name="createTime" value="<?= date('Y-m-d');?>">
 							<input type="hidden" name="order_id" value="">
@@ -68,17 +74,27 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 							<input type="hidden" name="balance" value="0" readonly="true">
 							<section class="col col-6">
 								<label class="input">Order Title:</label>
-								<input type="text" class="form-control" name="order_title"<?= hasPermission($order_form, 'order_title', $operation_order ) ? '' : ' readonly' ?>>
+								<input type="text" class="form-control is_disabled" name="order_title"<?= hasPermission($order_form, 'order_title', $operation_order ) ? '' : ' readonly' ?>>
 							</section>
+                            <section class="col col-xs-<?= $canAddContact ? 5 : 6?>">
+                                <label class="input">Zipcode<span class="c-orange">(*, first selected): </span></label>
+                                <input name="order_zipcode" class="form-control select2 is_disabled" id="order_zipcode" style="width:100%" <?= hasPermission($order_form, 'order_zipcode', $operation_order ) ? '' : ' disabled' ?>></select>
+                                <p></p>
+                            </section>
+                            <section class="col col-6">
+                                <label class="input">Saleman(*): <span class="link_to" data-view="link_to" data-form="#order_form" data-control="salesperson" data-name="contact-form" data-param="id"></span></label>
+                                <select name="salesperson" id="salespersonId" class="form-control select2" style="width:100%" <?= hasPermission($order_form, 'salesperson', $operation_order ) ? '' : ' disabled' ?>><option value="">Select Salesperson</option></select><i></i>
+                                <p></p>
+                            </section>
 							<section class="col col-xs-<?= $canAddContact ? 5 : 6?>">
-								<label class="input">Bill To<span class="c-orange">(*, first selected): </span> <span class="link_to" data-view="link_to" data-form="#order_form" data-control="bill_to" data-name="contact-form" data-param="id"></span></label>
-								<select name="bill_to" class="form-control select2" id="bill_to_ID" style="width:100%" <?= hasPermission($order_form, 'bill_to', $operation_order ) ? '' : ' disabled' ?>></select>
+								<label class="input">Bill To<span class="c-orange">(*): </span> <span class="link_to" data-view="link_to" data-form="#order_form" data-control="bill_to" data-name="contact-form" data-param="id"></span></label>
+								<select name="bill_to" class="form-control select2 is_disabled" id="bill_to_ID" style="width:100%" <?= hasPermission($order_form, 'bill_to', $operation_order ) ? '' : ' disabled' ?>></select>
 								<p></p>
 							</section>
 							<?php if($canAddContact && basename($_SERVER['PHP_SELF'])=='order-form.php'){ ?>
 
 							<section class="col col-xs-1" style="margin-top:19px; margin-left:-22px;">
-								<button class="btn btn-sm btn-primary" id="btnAddContactOrder1" data-toggle="modal" data-target="#add_contact_modal" type="button" title="Create new contact"><i class="fa fa-plus"></i></button>
+								<button class="btn btn-sm btn-primary is_disabled" id="btnAddContactOrder1" data-toggle="modal" data-target="#add_contact_modal" type="button" title="Create new contact"><i class="fa fa-plus"></i></button>
 							</section>
 
 							<?php } ?>
@@ -87,7 +103,7 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
                                 ?>
                                 <section class="col col-6">
                                     <label class="input">Doors:</label>
-                                    <select class="form-control" name="order_doors" id="order_doors">
+                                    <select class="form-control is_disabled" name="order_doors" id="order_doors">
                                         <option value=""></option>
                                         <option value="forward to cab of truck">Forward to cab of truck</option>
                                         <option value="to rear of trailer">To rear of trailer</option>
@@ -95,15 +111,31 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
                                 </section>
                             <?php }?>
                             <?php
-                            if(hasPermission($order_form, 'order_releases', $operation_order)){
+                            if(hasPermission($order_form, 'order_releases', $operation_order) && $operation_order=='edit'){
                                 ?>
                                 <section class="col col-5">
                                     <label class="input">Releases #:</label>
-                                    <input type="text" class="form-control" name="order_releases" id="order_releases">
+                                    <input type="text" class="form-control is_disabled" name="order_releases" id="order_releases">
+                                </section>
+                            <?php }?>
+                            <?php
+                            if(hasPermission($order_form, 'order_releases', $operation_order) && $operation_order=='edit'){
+                                ?>
+                                <section class="col col-6">
+                                    <label class="input">Order status</label>
+                                    <select class="form-control is_disabled" name="order_status" id="order_status">
+                                        <option></option>
+                                        <option value="CANCELLED">CANCELLED</option>
+                                    </select>
                                 </section>
                             <?php }?>
 						</div>
+
+                        <div class="row">
+                            <div class="col col-6" id="avalible-depots"> </div>
+                        </div>
 					</fieldset>
+
 					<fieldset>
 						<div class="row">
 							<section class="padding-10">
@@ -128,7 +160,7 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 										<b class="tooltip tooltip-top-right"><i class="fa fa-barcode txt-color-teal"></i> Enter your discount code</b>
 									</label>
 								</section>
-						</div> -->
+						</div>
 					</fieldset>
                     <!--
 					<?php include 'billing.php';  ?>
@@ -145,19 +177,14 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 					<fieldset>
 						<div class="row">
 							<section class="col col-6">
-								<label class="input">Saleman: <span class="link_to" data-view="link_to" data-form="#order_form" data-control="salesperson" data-name="contact-form" data-param="id"></span></label>
-								<select name="salesperson" id="salespersonId" class="form-control select2" style="width:100%" <?= hasPermission($order_form, 'salesperson', $operation_order ) ? '' : ' disabled' ?>><option value="">Select Salesperson</option></select><i></i>
-								<p></p>
-							</section>
-							<section class="col col-6">
 								<label class="input">Note:</label>
-								<textarea name="note" rows="4" class="form-control"></textarea>
+								<textarea name="note" rows="4" class="form-control is_disabled"></textarea>
 							</section>
 						</div>
 					</fieldset>
 					<?php
 						if(basename($_SERVER['PHP_SELF'])=='order-form.php'){$type_note = 'order'; $can_add_note = false; if($order_current_permission==true){ $can_add_note = true; }  ; include('notes.php');} ?>
-					<footer>
+					<footer id="order-form-footer">
 					<?php 
 					if (hasPermission($order_form, 'btnBackOrder', 'show' )) {
 						echo('<button type="button" class="btn btn-default" id="btnBackOrder" form="order_form">Back</button>');
@@ -166,7 +193,7 @@ $order_current_permission = strrpos($_SERVER['REQUEST_URI'] , 'order-form')>0;
 						echo('<button type="submit" class="btn btn-primary" id="btnSubmitOrder" onmousedown="setAction(`submit`)" form="order_form">Submit</button>');
 					}
 					if (hasPermission($order_form, 'btnForwardOrderToWarranty', 'show')) {
-						echo('<button type="submit" class="btn btn-default" id="btnForwardOrderToWarranty" onmousedown="setAction(`forward`)"  form="order_form">Forward to Warranty</button>');
+					//	echo('<button type="submit" class="btn btn-default" id="btnForwardOrderToWarranty" onmousedown="setAction(`forward`)"  form="order_form">Forward to Warranty</button>');
 					}
 					?>
 					</footer>

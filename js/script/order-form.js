@@ -52,7 +52,7 @@ Order.prototype = {
         callback();
       }
     });*/
-      new ControlSelect2(['[name=salesperson]']);
+    new ControlSelect2(['[name=salesperson]']);
      // new ControlSelect2(['[name=driver]']);
     this.forwardFromContact();
   },
@@ -70,7 +70,18 @@ Order.prototype = {
             success: function (res) {
                 // load Policyholder Contact
                 $("#salespersonId").val(res.contact_salesman_id).trigger('change');
-            //    loadPolicyholderContact(res);
+
+                var address = ''
+                address = (res.primary_street_address1 !='' && res.primary_street_address1 !=null)?res.primary_street_address1:''
+                if(res.primary_city !='' && res.primary_city !=null){
+                    address = (address !='')?address+', '+res.primary_city:res.primary_city
+                }
+                if(res.primary_state !='' && res.primary_state !=null){
+                    address = (address !='')?address+', '+res.primary_state:res.primary_state
+                }
+
+               // find_depot.prototype.find_nearest_depots('','',address,'','find_depot','#order_form #avalible-depots');
+                //    loadPolicyholderContact(res);
             //    loadSalesmanFolowState(res.primary_state);
             //    alert(res.contact_salesman_id);
             }
@@ -109,7 +120,25 @@ Order.prototype = {
         //   other_window.document.getElementById('display-acct-pay').click();
         // }, 2600);
       }
-    })
+    });
+      $('#order_form #order_zipcode').keydown(function(e){
+          if(e.keyCode==13){
+              $('#order_form #avalible-depots').html('')
+              $('#table_product_ordered tbody').html('')
+              $('#_payment').text(numeral(0).format('$ 0,0.00'));
+              _orderProducts.getTotalPrice();
+              if($('#table_product_ordered tbody').find('tr').length==0){
+                  _orderProducts.createInputFields();
+              }
+              find_depot.prototype.find_nearest_depots('','',$(this).val(),'','find_depot','#order_form #avalible-depots');
+
+          }
+      });
+
+
+      $('#order_form #order_zipcode').change('click',function(){
+          find_depot.prototype.find_nearest_depots('','',$(this).val(),'','find_depot','#order_form #avalible-depots');
+      })
   },
   initUpdate: function (id, callback) {
     if (id) {
@@ -140,17 +169,24 @@ Order.prototype = {
                       for(var i=0;i<temp_quote.length;i++){
                           if(temp_quote[i].prod_id==prod.id){
                               quote_temp =  temp_quote[i];
-                              //console.log(quote_temp);
+                             // console.log(quote_temp);
                               temp_quote.splice(i,1)
                                break;
                           }
                       }
                   }
-                _orderProducts.createInputFields(prod, _order.order[0].payment != 0 && _order.order[0].payment != '0',quote_temp);
+                  //console.log(quote_temp);
+                  _order.order[0].payment = parseFloat(_order.order[0].payment);
+                _orderProducts.createInputFields(prod, _order.order[0].payment != 0,quote_temp);
+
                   quote_temp=[]
               }
             });
             if (_order.order.length > 0) {
+                if(_order.order[0].order_zipcode !=null && _order.order[0].order_zipcode !=''){
+                    find_depot.prototype.find_nearest_depots('','',_order.order[0].order_zipcode,'','find_depot','#order_form #avalible-depots');
+                }
+
               $('#heading_title_id').text(_order.order[0].order_title ? _order.order[0].order_title : _order.order[0].order_id);
               var addr = _order.order[0].b_address1+" "+_order.order[0].b_primary_city+" "+_order.order[0].b_primary_state
               $('#order_form [name=bill_to]').append('<option value="'+_order.order[0].bill_to +'" address="'+addr+'" selected >' + _order.order[0].b_first_name + ' ' + _order.order[0].b_last_name + ' - ' + _order.order[0].b_primary_state + '</option>').trigger('change');
@@ -252,7 +288,7 @@ Order.prototype = {
                 $('#order_form input:text, #order_form textarea').each(function (index, elem) {
                   if (elem.value == '' && ['discount_code'].includes($(elem).prop('name'))) {
                     $('#discount_pane').remove();
-                    $(elem).closest('div.row').remove();
+                    $(elem).closest('div.row').remove(); //anh
                   } else if ($(elem).closest('#note_mail_popup')[0]) {
                   } else {
                     var it = $('<span class="label-input">' + elem.value + '</span>');
@@ -260,13 +296,19 @@ Order.prototype = {
                   }
                 });
 
+                  if(_order.order[0].discount_code !=null && _order.order[0].discount_code !=''){
+                      var discount_cd = numeral(_order.order[0].discount_code_total).format('$ 0,0.00')
+                      $('#order_form #discount_code').text(discount_cd)
+                      $('#order_form #discount-code-text').text('Discount code:('+_order.order[0].discount_code+')')
+                  }
                 // $('#order_form #table_product_ordered thead tr:last').remove();
-                $('#order_form .select2').remove();
+                $('#order_form .select2').remove(); //anh
                 $('#discount_pane').hide();
                 $('#btnAddContactOrder1').remove();
-                $('#btnSubmitOrder').remove();
+                //$('#btnSubmitOrder').remove(); anh
                 $('#btnForwardOrderToWarranty').remove();
-                $('.smart-form .input').removeClass('input');
+                //$('.smart-form .paid-copleted').remove()
+                $('.smart-form .input').removeClass('input'); //anh
 
                 if (_order.order[0].balance > 0) {
                   $('#order_form').parent().prepend('<p class="alert alert-notify">The order is paying. You cannot edit anything</p>')
@@ -276,15 +318,15 @@ Order.prototype = {
                   $('#order_form').parent().prepend('<p class="alert alert-notify">This order has been completed payment, You are only allowed to view</p>')
                 }
               } else {
-                _orderProducts.checkDisplayHasWarranty();
+                //_orderProducts.checkDisplayHasWarranty();
                 //Order is completed payment
-                _orderProducts.createInputFields();
+               // _orderProducts.createInputFields();
               }
 
                 if(_order.order[0].s_ID !=null){
                     setTimeout(function(){
                         $('#salespersonId').append('<option value="'+ _order.order[0].s_ID + '" selected>' + _order.order[0].s_first_name + ' ' + _order.order[0].s_last_name + '</option>').trigger('change');
-                    },500)
+                    },600)
                 }
 
                 /*if(_order.order[0].driver_id !=null){
@@ -295,12 +337,25 @@ Order.prototype = {
 
                 $('#order_form .is-new-order').css({"display":""})
                 if(_order.order[0].order_doors != null){
-                    $("#order_form option[value='"+_order.order[0].order_doors+"']").prop("selected", "selected");
+                    $("#order_form #order_doors option[value='"+_order.order[0].order_doors+"']").prop("selected", "selected");
                 }
                 if(_order.order[0].order_releases != null){
                     $('#order_form #order_releases').val(_order.order[0].order_releases)
                 }
-
+                if(_order.order[0].order_status != null){
+                    $('#status-waiting-confirm').val("")
+                    $("#order_form #order_status option[value='"+_order.order[0].order_status+"']").prop("selected", "selected");
+                   if(_order.order[0].order_status == 'CANCELLED' || _order.order[0].order_status == 'CLOSE'){
+                       $('select').prop('disabled', true);
+                       $("input").prop('disabled', true);
+                       $('button').prop('disabled', true);
+                   }else if(_order.order[0].order_status == 'WAITING_CONFIRM'){
+                       $('#btnSubmitOrder').remove()
+                       $('#btn-confirm-order').remove()
+                       $('#order-form-footer').append('<button type="submit" class="btn btn-primary" id="btn-confirm-order" onmousedown="setAction(`submit`)" form="order_form">Wating confirm</button>')
+                        $('#status-waiting-confirm').val("1")
+                   }
+                }
             }
           } else {
             messageForm('No data found with order id = ' + id + ', please choose another id', false, '#order_form #message_form');
@@ -321,6 +376,10 @@ Order.prototype = {
       salesperson: { required: true },
       // warranty: { required: true, number: true },
     },
+      messages: {
+          bill_to: { required: 'Require bill to' },
+          salesperson:{required: 'Salesperson'}
+      },
     submitHandler: function (e) {
       if (isComplete) {
         return;
@@ -441,9 +500,9 @@ Order.prototype = {
         }
       }
 
-        var data_post = []
-        $("#order_form #table_product_ordered tr").each(function(){
-            if($(this).find('.check-rate').is(":checked")){
+        var data_post = [];
+        $("#order_form #table_product_ordered tbody tr").each(function(){
+           // if($(this).find('.check-rate').is(":checked")){
                 var object = {
                     depot_id : $(this).find('.depot_id').val(),
                     depot_name : $(this).find('.depot_name').val(),
@@ -462,11 +521,12 @@ Order.prototype = {
                 }
 
                 data_post.push(object);
-            }
+           // }
         });
         _formData.data_post=data_post
-        // console.log(data_post);
-        // return
+        if($('#status-waiting-confirm').val()=='1') _formData.order_status = "OPEN"
+
+        // console.log(_formData); return
 
       Order._order = _formData;
       if ((parseInt(_formData.total) >= parseInt(_formData.payment))) {

@@ -23,7 +23,14 @@ depots.prototype = {
 
         $('#your-cart').on('keydown','.qty',function(e){
             if(e.keyCode==13){
-                console.log("rest")
+                if($(this).val() >=2){
+                    if(parseInt($(this).closest('tr').find('.container_feet_type').val()) !=20){
+                        $(this).val(1)
+                    }else{
+                        $(this).val(2)
+                    }
+                }
+
                 var qty = $(this).val();
                 var price = $(this).find('.best_price').val()
                 var best_price = parseFloat(qty) * parseFloat(price)
@@ -32,6 +39,23 @@ depots.prototype = {
                 depots.prototype.sub_total()
             }
 
+        })
+
+        $('#your-cart').on('change','.qty',function(e){
+            if($(this).val() >=2){
+                if(parseInt($(this).closest('tr').find('.container_feet_type').val()) !=20){
+                    $(this).val(1)
+                }else{
+                    $(this).val(2)
+                }
+            }
+
+            var qty = $(this).val();
+            var price = $(this).find('.best_price').val()
+            var best_price = parseFloat(qty) * parseFloat(price)
+            $(this).find('.calculate-total').text(numeral(best_price).format('$ 0,0.00'))
+
+            depots.prototype.sub_total()
         })
         //event
         $('#your-cart').on('click','.btn-remove',function(e){
@@ -98,7 +122,7 @@ depots.prototype = {
 
                             // get distance matrix response
                             service.getDistanceMatrix(request).then((response) => {
-                                //console.log(response);
+                                console.log(response);
                                 // put response
                             depots.prototype.deleteMarkers(markersArray);
                             //////////////////
@@ -109,20 +133,23 @@ depots.prototype = {
                             //find nearest depots
                             response.rows.forEach(function(item1){
                                 var item = item1.elements[0]
-                                //console.log(item)
+                               // console.log(item)
                                 //console.log("addr ="+response.destinationAddresses[i]);
                                 if(item.status =="OK"){
                                     //console.log(item.distance.text.split(" ")[0])
                                     //console.log(origin[i]);
                                     if(nearest_distance.length <1){
                                         smallest =item.distance.text.split(" ")[0];
+                                        smallest = smallest.replace( /,/g, "" );
                                         var add_el = {address : origin[i],distance:smallest}
-                                        if(parseFloat(smallest) <300) nearest_distance.push(add_el);
+                                        if(parseFloat(smallest) <less_than_300ml) nearest_distance.push(add_el);
 
                                     }else if(nearest_distance.length >0 && nearest_distance.length <2 ){
                                        var a = parseFloat(smallest);
-                                       var b = parseFloat(item.distance.text.split(" ")[0]);
-                                        if(b < 300) {
+                                       var b = item.distance.text.split(" ")[0];
+                                        b = b.replace( /,/g, "" );
+                                        b = parseFloat(b)
+                                        if(b < less_than_300ml) {
                                             if(b >=a){
                                                 var add_el = {address : origin[i],distance:b}
                                                 nearest_distance.push(add_el);
@@ -137,8 +164,10 @@ depots.prototype = {
                                     }else if(nearest_distance.length ==2){
                                         var a = parseFloat(smallest);
                                         var b = parseFloat(smaller);
-                                        var c = parseFloat(item.distance.text.split(" ")[0]);
-                                        if(c <300){
+                                        var c = item.distance.text.split(" ")[0];
+                                        c = c.replace( /,/g, "" );
+                                        c = parseFloat(c)
+                                        if(c <less_than_300ml){
                                             if(a >= c){
                                                 smallest = a;
                                                 smaller = c;
@@ -173,6 +202,7 @@ depots.prototype = {
                                             vendor_id:item2.vendor_id,
                                             rate_mile:item2.rate_mile,
                                             container_type_id:item2.container_type_id,
+                                            container_feet_type:item2.container_feet_type,
                                             container_type_name:item2.container_type_name,
                                             container_rate:item2.container_rate,
                                             prod_SKU:item2.prod_SKU,
@@ -228,7 +258,7 @@ depots.prototype = {
                                 }
                                 row += depots.prototype.show_depots(item)
                                 i++
-                                // tr += depots.prototype.show_depots(item)
+
                             });
                             if(i%4 !=0){
                                 row +='</div>'
@@ -240,6 +270,7 @@ depots.prototype = {
                             $("#depot-nearest .add-to-cart").unbind('click').bind('click',function(){
                                 var $me =$(this)
                                 var tr =  depots.prototype.add_to_cart($me)
+                                $('#your-cart #depot-tbl tbody').html('')
                                 $('#your-cart #depot-tbl tbody').append(tr)
 
                                 $('#home-page').css({"display":"none"})
@@ -275,6 +306,7 @@ depots.prototype = {
         if(depot_item.prod_photo !=null && depot_item.prod_photo !=''){
           img=  '<div class="col col-12 box"><img style="max-height: 190px" sizes="230px" src="'+depot_item.prod_photo+'"></div>'
         }
+        depot_item.best_price = parseFloat(depot_item.best_price) + parseFloat(container_plus_500);
         var  div1 ='<div class="depot_item col col-3 l10r10 box-parent" >' +
                 '<input type="hidden" class="depot_id" value="'+depot_item.depot_id+'">' +
                 '<input type="hidden" class="depot_name" value="'+depot_item.depot_name+'">' +
@@ -282,6 +314,7 @@ depots.prototype = {
                 '<input type="hidden" class="container_type_id" value="'+depot_item.container_type_id+'">' +
                 '<input type="hidden" class="container_rate" value="'+depot_item.container_rate+'">' +
                 '<input type="hidden" class="container_type_name" value="'+depot_item.container_type_name+'">' +
+                '<input type="hidden" class="container_feet_type" value="'+depot_item.container_feet_type+'">' +
                 '<input type="hidden" class="depot_address" value="'+depot_item.depot_address+'">' +
                 '<input type="hidden" class="rate_mile" value="'+depot_item.rate_mile+'">' +
                 '<input type="hidden" class="vendor_id" value="'+depot_item.vendor_id+'">' +
@@ -311,6 +344,7 @@ depots.prototype = {
              container_type_id: $me.closest('.depot_item').find('.container_type_id').val(),
              container_rate : $me.closest('.depot_item').find('.container_rate').val(),
              container_type_name : $me.closest('.depot_item').find('.container_type_name').val(),
+             container_feet_type:$me.closest('.depot_item').find('.container_feet_type').val(),
              depot_address : $me.closest('.depot_item').find('.depot_address').val(),
              rate_mile : $me.closest('.depot_item').find('.rate_mile').val(),
              vendor_id : $me.closest('.depot_item').find('.vendor_id').val(),
@@ -338,6 +372,7 @@ depots.prototype = {
          '<input type="hidden" class="container_type_id" value="'+depot_item.container_type_id+'">' +
          '<input type="hidden" class="container_rate" value="'+depot_item.container_rate+'">' +
          '<input type="hidden" class="container_type_name" value="'+depot_item.container_type_name+'">' +
+         '<input type="hidden" class="container_feet_type" value="'+depot_item.container_feet_type+'">' +
          '<input type="hidden" class="depot_address" value="'+depot_item.depot_address+'">' +
          '<input type="hidden" class="rate_mile" value="'+depot_item.rate_mile+'">' +
          '<input type="hidden" class="vendor_id" value="'+depot_item.vendor_id+'">' +

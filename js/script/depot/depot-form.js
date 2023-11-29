@@ -24,7 +24,7 @@ Depot.prototype = {
     }
   },
   initUpdate: function (id) {
-    console.log("da vao init update: ", id);
+    //console.log("da vao init update: ", id);
     contact_state = new State({ element: "#depot_form" });
     var _self = this;
     $.ajax({
